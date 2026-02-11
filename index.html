@@ -3,26 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Leading Talents</title>
+    <title>Leading Talent</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .touch-dragging {
+       
+
+
+
+
+/* Improve touch targets for mobile */
+.touch-manipulation {
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Better touch feedback */
+.touch-dragging {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     transition: none;
 }
 
 .drop-zone-highlight {
-    background-color: rgba(14, 165, 233, 0.2) !important;
+    background-color: rgba(14, 165, 233, 0.3) !important;
     transform: scale(1.05);
     transition: all 0.2s ease;
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.5);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.6) !important;
+    animation: pulse-glow 1s ease-in-out infinite;
 }
 
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(14, 165, 233, 0.4);
+    }
+}
+
+/* Prevent text selection during drag */
 .nine-box-container * {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
 }
+
+/* Improve grid cell sizing on mobile */
+@media (max-width: 640px) {
+    .nine-box-container .grid.grid-cols-3 > div {
+        min-height: 100px;
+    }
+}
+
+/* Make draggable items more obvious on mobile */
+@media (max-width: 640px) {
+    [draggable="true"]:not([draggable="false"]) {
+        cursor: grab;
+        position: relative;
+    }
+    
+    [draggable="true"]:not([draggable="false"])::after {
+        content: "⋮⋮";
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(0,0,0,0.2);
+        font-size: 16px;
+        letter-spacing: -2px;
+    }
+}
+
+/* Sticky submit button on mobile */
+@media (max-width: 640px) {
+    [data-submit="nine"] {
+        position: sticky;
+        bottom: 0;
+        z-index: 30;
+    }
+}
+
+/* Reduce header size on mobile for more screen space */
+@media (max-width: 640px) {
+    header.glass {
+        padding: 0.5rem;
+    }
+    
+    /* Make timer pill smaller on mobile */
+    .timer-pill-mobile {
+        transform: scale(0.85);
+    }
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* When dragging, add visual indicator */
+body.is-dragging {
+    cursor: grabbing !important;
+}
+
+body.is-dragging * {
+    cursor: grabbing !important;
+}
+
+/* Improve grid readability on small screens */
+@media (max-width: 640px) {
+    /* Make cell text more readable */
+    .nine-box-container [ondrop] {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+    
+    /* Larger touch targets for placed items */
+    .nine-box-container [ondrop] > div[draggable="true"] {
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0.5rem;
+    }
+}
+
+/* Visual feedback when item is being dragged from grid */
+.nine-box-container [ondrop].has-dragged-item {
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.1) 10px,
+        rgba(255,255,255,0.1) 20px
+    );
+}
+
+/* Better spacing for pool items on mobile */
+@media (max-width: 640px) {
+    .nine-box-container .grid.grid-cols-1 > div {
+        padding: 0.75rem;
+        min-height: 60px;
+    }
+}
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         html { height: 100%; }
         *, *::before, *::after { box-sizing: border-box; }
@@ -475,8 +598,11 @@ let touchDragState = {
     touchStartX: 0,
     touchStartY: 0,
     clone: null,
-    dropTarget: null
+    dropTarget: null,
+    scrollInterval: null,  // NEW: for auto-scroll
+    lastTouchY: 0          // NEW: track scroll position
 };
+
         function render() {
                 console.log('RENDER CALLED:', state.view); // ← Add this
 
@@ -1377,119 +1503,24 @@ function renderTimerPill(id, text) {
             </div>`;
         }
 
-function initTouchDragAndDrop() {
-    // This will be called after render to attach touch handlers
-    const draggables = document.querySelectorAll('[draggable="true"]');
-    const dropZones = document.querySelectorAll('[ondrop]');
-    
-    draggables.forEach(elem => {
-        // Remove existing listeners if any
-        elem.removeEventListener('touchstart', handleTouchStart);
-        elem.removeEventListener('touchmove', handleTouchMove);
-        elem.removeEventListener('touchend', handleTouchEnd);
-        
-        // Add new listeners
-        elem.addEventListener('touchstart', handleTouchStart, { passive: false });
-        elem.addEventListener('touchmove', handleTouchMove, { passive: false });
-        elem.addEventListener('touchend', handleTouchEnd, { passive: false });
-    });
-    
-    dropZones.forEach(zone => {
-        zone.removeEventListener('touchmove', handleDropZoneTouchMove);
-        zone.addEventListener('touchmove', handleDropZoneTouchMove, { passive: false });
-    });
-}
 
-function handleTouchStart(e) {
-    if (state.isNineBoxSubmitted || isNineBoxTimeUp()) {
-        e.preventDefault();
-        return;
-    }
-    
-    const target = e.currentTarget;
-    const key = extractProfileKey(target);
-    
-    if (!key) return;
-    
-    e.preventDefault();
-    
-    touchDragState.isDragging = true;
-    touchDragState.draggedElement = target;
-    touchDragState.draggedKey = key;
-    touchDragState.touchStartX = e.touches[0].clientX;
-    touchDragState.touchStartY = e.touches[0].clientY;
-    
-    // Create visual clone
-    const clone = target.cloneNode(true);
-    clone.style.position = 'fixed';
-    clone.style.pointerEvents = 'none';
-    clone.style.zIndex = '9999';
-    clone.style.opacity = '0.8';
-    clone.style.transform = 'scale(1.1)';
-    clone.style.left = touchDragState.touchStartX + 'px';
-    clone.style.top = touchDragState.touchStartY + 'px';
-    clone.style.width = target.offsetWidth + 'px';
-    clone.classList.add('touch-dragging');
-    
-    document.body.appendChild(clone);
-    touchDragState.clone = clone;
-    
-    // Fade out original
-    target.style.opacity = '0.3';
-    
-    // Set dragging state
-    state.draggingProfileId = key;
-}
-
-function handleTouchMove(e) {
-    if (!touchDragState.isDragging || !touchDragState.clone) return;
-    
-    e.preventDefault();
-    
-    const touch = e.touches[0];
-    
-    // Move clone with finger
-    touchDragState.clone.style.left = touch.clientX - (touchDragState.clone.offsetWidth / 2) + 'px';
-    touchDragState.clone.style.top = touch.clientY - (touchDragState.clone.offsetHeight / 2) + 'px';
-    
-    // Find drop target under finger
-    const elementUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
-    
-    // Find the closest drop zone
-    let dropZone = elementUnderFinger;
-    while (dropZone && !dropZone.hasAttribute('ondrop')) {
-        dropZone = dropZone.parentElement;
-    }
-    
-    // Highlight drop zone
-    document.querySelectorAll('.drop-zone-highlight').forEach(el => {
-        el.classList.remove('drop-zone-highlight');
-    });
-    
-    if (dropZone && dropZone.hasAttribute('ondrop')) {
-        dropZone.classList.add('drop-zone-highlight');
-        touchDragState.dropTarget = dropZone;
-    } else {
-        touchDragState.dropTarget = null;
-    }
-}
 
 function handleTouchEnd(e) {
     if (!touchDragState.isDragging) return;
     
     e.preventDefault();
     
-    // Remove clone
+    // Stop auto-scroll
+    stopAutoScroll();
+    
     if (touchDragState.clone) {
         touchDragState.clone.remove();
     }
     
-    // Restore original opacity
     if (touchDragState.draggedElement) {
         touchDragState.draggedElement.style.opacity = '1';
     }
     
-    // Remove highlights
     document.querySelectorAll('.drop-zone-highlight').forEach(el => {
         el.classList.remove('drop-zone-highlight');
     });
@@ -1498,15 +1529,12 @@ function handleTouchEnd(e) {
     if (touchDragState.dropTarget) {
         const ondropAttr = touchDragState.dropTarget.getAttribute('ondrop');
         
-        // Check if it's a grid cell drop
         if (ondropAttr && ondropAttr.includes('handleDrop')) {
-            // Extract performance and potential from the ondrop attribute
             const match = ondropAttr.match(/handleDrop\(event,\s*(\d+),\s*(\d+)\)/);
             if (match) {
                 const performance = parseInt(match[1]);
                 const potential = parseInt(match[2]);
                 
-                // Execute the drop logic
                 const key = touchDragState.draggedKey;
                 if (key) {
                     const existing = Object.keys(state.nineBoxPlacements).find(
@@ -1521,7 +1549,6 @@ function handleTouchEnd(e) {
                 }
             }
         }
-        // Check if it's a drop back to pool
         else if (ondropAttr && ondropAttr.includes('handleDropToPool')) {
             const key = touchDragState.draggedKey;
             if (key && state.nineBoxPlacements[key]) {
@@ -1541,14 +1568,13 @@ function handleTouchEnd(e) {
 }
 
 function handleDropZoneTouchMove(e) {
-    // Prevent scrolling while dragging
     if (touchDragState.isDragging) {
         e.preventDefault();
     }
 }
 
+
 function extractProfileKey(element) {
-    // Try to extract the profile key from the draggable element
     const ondragstart = element.getAttribute('ondragstart');
     if (ondragstart) {
         const match = ondragstart.match(/handleDragStart\(['"]([^'"]+)['"]\)/);
@@ -1556,101 +1582,196 @@ function extractProfileKey(element) {
     }
     return null;
 }
-        function renderNineBox() {
-            const timeUp = isNineBoxTimeUp();
-            const savedNineBox = state.team?.completedNineBox || null;
-            const placements = state.isNineBoxSubmitted && savedNineBox?.placementsCorrected ? savedNineBox.placementsCorrected : (state.nineBoxPlacements || {});
-            const feedback = state.isNineBoxSubmitted && savedNineBox?.feedback ? savedNineBox.feedback : {};
-            const gridCells = getNineBoxCells();
-            const labels = [...gridCells]
-                .sort((a, b) => (a.potential - b.potential) || (b.performance - a.performance))
-                .map(cell => ({ key: cell.key, label: cell.label }));
-            const placedKeys = Object.keys(placements);
-            const canSubmit = placedKeys.length === labels.length;
 
-            return `<div class="min-h-screen bg-slate-50 pb-32">
-                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <button onclick="navigate('LANDING')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
-                        <h1 class="font-black uppercase tracking-widest text-xs text-slate-400 hidden sm:block truncate">9-Box Grid</h1>
-                    </div>
-                    <div class="flex justify-center">
-                        ${renderTimerPill('timer-ninebox', getNineBoxTimerText())}
-                    </div>
-                    <div class="flex flex-wrap justify-end gap-2 items-center">
-                        <div class="bg-yellow-100 px-4 py-2 rounded-2xl border border-yellow-200 font-black text-yellow-800 text-sm flex items-center gap-2">
-                            <img src="img/diamond-coin.png" alt="Diamond coin" class="w-5 h-5 coin-diamond" />
-                            <span>${state.team.goldCoins}</span>
-                        </div>
-                        <div class="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 font-black text-slate-700 text-sm flex items-center gap-2">
-                            <img src="img/golden-coin.png" alt="Gold coin" class="w-5 h-5" />
-                            <span>${state.team.silverCoins}</span>
-                        </div>
-                    </div>
-                </header>
+// ============================================
+// NEW: AUTO-SCROLL FUNCTIONS
+// ============================================
 
-<main class="p-4 sm:p-6 max-w-4xl mx-auto space-y-8 animate-pop nine-box-container">
-                <section>
-                        <div class="flex items-center justify-between mb-3">
-                            <h2 class="text-lg font-black text-slate-800">Box Names</h2>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Drag into grid</p>
+function startAutoScroll() {
+    if (touchDragState.scrollInterval) {
+        clearInterval(touchDragState.scrollInterval);
+    }
+    
+    touchDragState.scrollInterval = setInterval(() => {
+        if (!touchDragState.isDragging) {
+            stopAutoScroll();
+            return;
+        }
+        
+        const touchY = touchDragState.lastTouchY;
+        const windowHeight = window.innerHeight;
+        const scrollSpeed = 8;
+        const edgeThreshold = 100; // pixels from edge to trigger scroll
+        
+        // Scroll down when near bottom
+        if (touchY > windowHeight - edgeThreshold) {
+            const scrollAmount = Math.min(scrollSpeed, (touchY - (windowHeight - edgeThreshold)) / 10);
+            window.scrollBy(0, scrollAmount);
+            
+            // Update clone position to follow scroll
+            if (touchDragState.clone) {
+                const currentTop = parseFloat(touchDragState.clone.style.top);
+                touchDragState.clone.style.top = (currentTop - scrollAmount) + 'px';
+            }
+        }
+        // Scroll up when near top
+        else if (touchY < edgeThreshold) {
+            const scrollAmount = Math.min(scrollSpeed, (edgeThreshold - touchY) / 10);
+            window.scrollBy(0, -scrollAmount);
+            
+            // Update clone position to follow scroll
+            if (touchDragState.clone) {
+                const currentTop = parseFloat(touchDragState.clone.style.top);
+                touchDragState.clone.style.top = (currentTop + scrollAmount) + 'px';
+            }
+        }
+    }, 16); // ~60fps
+}
+
+function stopAutoScroll() {
+    if (touchDragState.scrollInterval) {
+        clearInterval(touchDragState.scrollInterval);
+        touchDragState.scrollInterval = null;
+    }
+}
+// ============================================
+// IMPROVED MOBILE LAYOUT FOR 9-BOX
+// ============================================
+
+// REPLACE the renderNineBox() function with this mobile-optimized version:
+
+function renderNineBox() {
+    const timeUp = isNineBoxTimeUp();
+    const savedNineBox = state.team?.completedNineBox || null;
+    const placements = state.isNineBoxSubmitted && savedNineBox?.placementsCorrected ? savedNineBox.placementsCorrected : (state.nineBoxPlacements || {});
+    const feedback = state.isNineBoxSubmitted && savedNineBox?.feedback ? savedNineBox.feedback : {};
+    const gridCells = getNineBoxCells();
+    const labels = [...gridCells]
+        .sort((a, b) => (a.potential - b.potential) || (b.performance - a.performance))
+        .map(cell => ({ key: cell.key, label: cell.label }));
+    const placedKeys = Object.keys(placements);
+    const canSubmit = placedKeys.length === labels.length;
+
+    return `<div class="min-h-screen bg-slate-50 pb-32">
+        <header class="glass sticky top-0 z-40 p-3 sm:p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+                <button onclick="navigate('LANDING')" class="p-2"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h1 class="font-black uppercase tracking-widest text-[10px] sm:text-xs text-slate-400 hidden sm:block truncate">9-Box Grid</h1>
+            </div>
+            <div class="flex justify-center">
+                ${renderTimerPill('timer-ninebox', getNineBoxTimerText())}
+            </div>
+            <div class="flex flex-wrap justify-end gap-1.5 sm:gap-2 items-center">
+                <div class="bg-yellow-100 px-2 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-yellow-200 font-black text-yellow-800 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                    <img src="img/diamond-coin.png" alt="Diamond coin" class="w-4 h-4 sm:w-5 sm:h-5 coin-diamond" />
+                    <span>${state.team.goldCoins}</span>
+                </div>
+                <div class="bg-slate-100 px-2 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-slate-200 font-black text-slate-700 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                    <img src="img/golden-coin.png" alt="Gold coin" class="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>${state.team.silverCoins}</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="p-3 sm:p-4 md:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6 animate-pop nine-box-container">
+            <!-- Instructions for mobile -->
+            <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 sm:p-4 md:hidden">
+                <div class="flex items-start gap-3">
+                    <div class="text-sky-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div class="text-xs font-semibold text-sky-800 leading-relaxed">
+                        <strong>How to use:</strong> Touch and hold a box name below, then drag it to the correct cell in the grid. The grid will highlight when you hover over it.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box Names Pool - IMPROVED MOBILE LAYOUT -->
+            <section>
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-base sm:text-lg font-black text-slate-800">Box Names</h2>
+                    <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Drag to grid</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)">
+                    ${labels.map(item => {
+                        const isPlaced = Boolean(placements[item.key]);
+                        return `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" 
+                                     ondragstart="handleDragStart('${item.key}')" 
+                                     ondragend="handleDragEnd()" 
+                                     class="${isPlaced ? 'opacity-40' : ''} bg-white border-2 border-slate-200 rounded-xl p-3 text-center shadow-sm font-black text-xs sm:text-sm text-slate-700 min-h-[60px] sm:min-h-[50px] flex items-center justify-center touch-manipulation active:scale-95 transition-transform">
+                            ${item.label}
+                        </div>`;
+                    }).join('')}
+                </div>
+            </section>
+
+            <!-- 9-Box Grid - IMPROVED MOBILE LAYOUT -->
+            <section class="bg-white rounded-2xl sm:rounded-[2.5rem] p-3 sm:p-4 md:p-6 shadow-2xl">
+                <!-- Mobile Optimized Grid -->
+                <div class="block">
+                    <div class="grid grid-cols-[auto,1fr] gap-2 sm:gap-3 items-stretch">
+                        <!-- Y-Axis Label -->
+                        <div class="flex flex-col items-center">
+                            <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 [writing-mode:vertical-rl] rotate-180 mb-2">Potential</span>
+                            <div class="flex-1 flex flex-col justify-between text-[9px] sm:text-[10px] font-black uppercase text-slate-400 py-1">
+                                <span>High</span>
+                                <span class="my-auto">Moderate</span>
+                                <span>Low</span>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)">
-                            ${labels.map(item => {
-                                const isPlaced = Boolean(placements[item.key]);
-                                return `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" ondragstart="handleDragStart('${item.key}')" ondragend="handleDragEnd()" class="${isPlaced ? 'opacity-40' : ''} bg-white border-2 border-slate-200 rounded-xl p-3 text-center shadow-sm font-black text-xs text-slate-700">
-                                    ${item.label}
+                        
+                        <!-- Grid Cells -->
+                        <div class="grid grid-cols-3 gap-1.5 sm:gap-2 md:gap-3">
+                            ${gridCells.map(cell => {
+                                const occupantKey = Object.keys(placements).find(key => placements[key].performance === cell.performance && placements[key].potential === cell.potential);
+                                const occupant = occupantKey ? labels.find(l => l.key === occupantKey) : null;
+                                const status = occupantKey && feedback[occupantKey] ? feedback[occupantKey].status : null;
+                                const statusClass = status === 'correct' ? 'ring-2 ring-green-500 bg-green-50' : status === 'wrong' ? 'ring-2 ring-red-500 bg-red-50' : '';
+                                
+                                return `<div ondragover="handleDragOver(event)" 
+                                             ondrop="handleDrop(event, ${cell.performance}, ${cell.potential})" 
+                                             class="${cell.tone} ${cell.text} rounded-xl sm:rounded-2xl min-h-[100px] sm:min-h-[110px] md:h-28 p-2 sm:p-3 font-black text-[9px] sm:text-xs flex flex-col justify-between border-2 border-white/60 relative touch-manipulation">
+                                    <!-- Cell Label - Hidden on mobile if occupied -->
+                                    <div class="opacity-90 text-[8px] sm:text-[9px] leading-tight ${occupant ? 'hidden sm:block' : ''}"></div>
+                                    
+                                    <!-- Occupant -->
+                                    ${occupant ? `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" 
+                                                       ondragstart="handleDragStart('${occupant.key}')" 
+                                                       ondragend="handleDragEnd()" 
+                                                       class="bg-white text-slate-800 rounded-lg sm:rounded-xl px-2 py-2 sm:px-3 sm:py-2 text-[10px] sm:text-[11px] font-black ${statusClass} leading-tight text-center flex items-center justify-center min-h-[50px] sm:min-h-[40px] active:scale-95 transition-transform">
+                                        ${occupant.label}
+                                    </div>` : '<div class="h-10 sm:h-12"></div>'}
                                 </div>`;
                             }).join('')}
                         </div>
-                    </section>
-
-                    <section class="bg-white rounded-[2.5rem] p-4 sm:p-6 shadow-2xl overflow-x-auto sm:overflow-visible">
-                        <div class="min-w-[520px] sm:min-w-0">
-                        <div class="grid grid-cols-[36px,1fr] gap-3 items-stretch">
-                            <div class="flex flex-col items-center h-full">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 [writing-mode:vertical-rl] rotate-180 mb-2">Potential</span>
-                                <div class="flex-1 flex flex-col justify-between text-[10px] font-black uppercase text-slate-400">
-                                    <span>High</span>
-                                    <span>Moderate</span>
-                                    <span>Low</span>
-                                </div>
+                    </div>
+                    
+                    <!-- X-Axis Labels -->
+                    <div class="grid grid-cols-[auto,1fr] gap-2 sm:gap-3 mt-2 sm:mt-3 items-center">
+                        <div></div>
+                        <div class="space-y-1.5 sm:space-y-2">
+                            <div class="flex justify-between text-[9px] sm:text-[10px] font-black uppercase text-slate-400 px-1">
+                                <span>Low</span><span>Moderate</span><span>High</span>
                             </div>
-                            <div class="grid grid-cols-3 gap-3">
-                                ${gridCells.map(cell => {
-                                    const occupantKey = Object.keys(placements).find(key => placements[key].performance === cell.performance && placements[key].potential === cell.potential);
-                                    const occupant = occupantKey ? labels.find(l => l.key === occupantKey) : null;
-                                    const status = occupantKey && feedback[occupantKey] ? feedback[occupantKey].status : null;
-                                    const statusClass = status === 'correct' ? 'ring-2 ring-green-500 bg-green-50' : status === 'wrong' ? 'ring-2 ring-red-500 bg-red-50' : '';
-                                    return `<div ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${cell.performance}, ${cell.potential})" class="${cell.tone} ${cell.text} rounded-2xl h-28 p-3 font-black text-xs flex flex-col justify-between border-2 border-white/60">
-                                        <div class="opacity-90"></div>
-                                        ${occupant ? `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" ondragstart="handleDragStart('${occupant.key}')" ondragend="handleDragEnd()" class="bg-white text-slate-800 rounded-xl px-3 py-2 text-[11px] font-black ${statusClass}">
-                                            ${occupant.label}
-                                        </div>` : '<div class="h-10"></div>'}
-                                    </div>`;
-                                }).join('')}
-                            </div>
+                            <div class="text-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">Performance</div>
                         </div>
-                        <div class="grid grid-cols-[36px,1fr] gap-3 mt-3 items-center">
-                            <div></div>
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-[10px] font-black uppercase text-slate-400 px-1">
-                                    <span>Low</span><span>Moderate</span><span>High</span>
-                                </div>
-                                <div class="text-center text-xs font-black uppercase tracking-widest text-slate-400">Performance</div>
-                            </div>
-                        </div>
-                        </div>
-                    </section>
+                    </div>
+                </div>
+            </section>
 
-                    <section class="pt-2">
-                        <button data-submit="nine" ${!state.isNineBoxSubmitted && (!canSubmit || timeUp) ? 'disabled' : ''} onclick="${state.isNineBoxSubmitted ? "navigate('LANDING')" : "handleSubmitNineBox()"}" class="w-full py-5 rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-lg ${state.isNineBoxSubmitted ? 'bg-slate-900 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : canSubmit ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">${state.isNineBoxSubmitted ? 'Back to Dashboard' : timeUp ? 'Time Up' : 'Submit Grid'}</button>
-                        ${!state.isNineBoxSubmitted ? `<p class="text-center text-[10px] font-bold text-slate-400 mt-2">${placedKeys.length} / ${labels.length} placed</p>` : ''}
-                    </section>
-                </main>
-            </div>`;
-        }
-
+            <!-- Submit Section -->
+            <section class="pt-2 sticky bottom-0 bg-slate-50 pb-4 sm:pb-0 sm:static">
+                <button data-submit="nine" 
+                        ${!state.isNineBoxSubmitted && (!canSubmit || timeUp) ? 'disabled' : ''} 
+                        onclick="${state.isNineBoxSubmitted ? "navigate('LANDING')" : "handleSubmitNineBox()"}" 
+                        class="w-full py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-base sm:text-lg ${state.isNineBoxSubmitted ? 'bg-slate-900 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : canSubmit ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                    ${state.isNineBoxSubmitted ? 'Back to Dashboard' : timeUp ? 'Time Up' : 'Submit Grid'}
+                </button>
+                ${!state.isNineBoxSubmitted ? `<p class="text-center text-[10px] sm:text-xs font-bold text-slate-400 mt-2">${placedKeys.length} / ${labels.length} placed</p>` : ''}
+            </section>
+        </main>
+    </div>`;
+}
         function renderEvaluation() {
             const p = state.selectedProfile;
             const timeUp = isRoundTimeUp('ksa');
