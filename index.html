@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Leading Talents</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        html { height: 100%; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; min-height: 100%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        img { max-width: 100%; height: auto; display: block; }
+        button, input, select, textarea { font: inherit; }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .coin-bounce { animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .spin-slow { animation: spin 3s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .coin-diamond { scale: 1.6; }
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="antialiased text-slate-900 select-none">
+    <div id="root" class="min-h-screen"></div>
+    <div id="modal-container" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"></div>
+    <div id="coin-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md"></div>
+
+    <script>
+        // --- API CONFIG ---
+        const API_URL = "https://script.google.com/macros/s/AKfycby-xblvn4mvOBMM0IkCvLAYNbpMS5K9TaHoKaiBF4n5NhQyrkTljwsmUWYu9WXTkTrh/exec";
+
+        const RUBRIC_DATA = [
+            {
+                name: "Knowledge",
+                levels: {
+                    1: "Poor",
+                    2: "Below Expectation",
+                    3: "Average/ Meeting Expectation",
+                    4: "Exceeding expectation",
+                    5: "Exceptional"
+                }
+            },
+            {
+                name: "Skills",
+                levels: {
+                    1: "Lack core skills required to do his job",
+                    2: "Have core skills required to do his job. However, he need development in some areas under supervision",
+                    3: "Have core skills required to do his job with minimal support",
+                    4: "Have additional skills that distinguish him from others and Or with ability to mentor others",
+                    5: "Have additional skills that distinguish him from others And with ability to mentor others"
+                }
+            },
+            {
+                name: "Attitude",
+                levels: {
+                    1: "Consistently displays unprofessional behavior and/or frequently resists, manipulates and breaks the rules",
+                    2: "Occasionally shows acceptable behavior but is inconsistent.",
+                    3: "Generally, behaves appropriately and follows guidelines.",
+                    4: "Proactive, and has distinguished behavior that give him edge over others, e.g., highly agile or accept and look for feedback",
+                    5: "Proactive, and has distinguished behavior that give him edge over others, e.g., highly agile or accept and look for feedback and has significant role in fostering positive culture"
+                }
+            }
+        ];
+
+        const PERFORMANCE_RUBRIC_DATA = [
+            { name: "Performance", levels: { 1: "Not Achieved", 2: "Achieved", 3: "Exceed Achievement" } },
+            { name: "Potential", levels: { 1: "Aspiration & Organizational Commitment present Only (or absent)", 2: "Aspiration & Organizational Commitment plus Capacity or Learning Agility", 3: "Aspiration & Organizational Commitment plus Capacity and Learning Agility" } }
+        ];
+
+        const PROFILES = [
+            { id: "omar", name: "Omar", avatar: "img/omar-avatar.png", job: "Branch Manager", age: 28, exp: "4 Years", traits: [
+                "Very good knowledge of the retail KPIs, market dynamics, and financial management.",
+                "His manager feedback that he needs to focus on building a more collaborative and engaging team environment.",
+                "Manager feedback notes that he believes using manager’s authority is important to ensure seamless operations.",
+                "Problem-solving skills. Handling store administrative and quality tasks efficiently & interested in learning more about managing inventory.",
+                "He has positive and proactive attitude in company projects, often going above and beyond to contribute to the team’s success. He is highly receptive to feedback and eagerly embraces change.",
+                "Promoted to branch manager since 6 Years",
+                "Ach last year: 104%, Q1= 107%",
+                "Career aspiration: Operation & Sales Supervisor"
+            ], answers: { k: 4, s: 2, a: 4 }, performancePotential: { performance: 3, potential: 2 } },
+            { id: "youseff", name: "Youssef", avatar: "img/youssef-avatar.png", job: "Pharmacist", age: 25, exp: "1.5 Years", traits: [
+                "In-depth knowledge of company policies and procedures and Very good product knowledge.",
+                "Needs to become more open to adopting new technologies. Struggles to adjust methods when existing practices are no longer effective.",
+                "360 feedback shows he lacks proper leadership skills when given follow up tasks.",
+                "He is friendly towards colleagues and effectively handling poor customer experience.",
+                "Ach last year: 96.5%, Q1 is 99%.",
+                "Career aspiration: L&D Supervisor or Sales Supervisor or Category Manager"
+            ], answers: { k: 4, s: 3, a: 2 }, performancePotential: { performance: 2, potential: 1 } },
+            { id: "faisal", name: "Faisal", avatar: "img/faisal-avatar.png", job: "Pharmacist", age: 27, exp: "3 Years", traits: [
+                "Although his technical exam scores are almost good, he is distinguished for his CX and selling skills.",
+                "Collaborative employee who always seeks for development & feedback and act accordingly.",
+                "Hasn`t passed the last assessment. Results were announced late Dec.",
+                "One of the top achievers. Demonstrates potential leadership qualities and is proactive in taking on new responsibilities and supporting company objectives.",
+                "His manager’s feedback indicates that he is reliable in situations where options and information are limited and time is constrained.",
+                "His manager’s wants to delegate more tasks to him to devote time to planning but he needs to free some of Omar tasks to do this task.",
+                "His communications show he is a little bit disappointed during the last Quarter.",
+                "Ach last year: 108%, Q1 is 101%.",
+                "Career aspiration: Branch Manager then Operation & Sales Supervisor"
+            ], answers: { k: 3, s: 4, a: 4 }, performancePotential: { performance: 3, potential: 3 } },
+            { id: "fahd", name: "Fahd", avatar: "img/fahd-avatar.png", job: "Pharmacist", age: 23, exp: "9 Months", traits: [
+                "Enthusiastic to grow, and keen to have good relations with his colleagues.",
+                "Very good score in technical exams.",
+                "Faces challenges in selling skills and handling painful customer experience.",
+                "He is poor in cross selling and up selling. He has some customer complaints (higher than average).",
+                "Hasn`t achieved his target monthly since hired with far away achievement. He is disappointed being the only one not achieving in his branch.",
+                "He is positive and cooperative except when under stress.",
+                "Career aspiration: L&D Supervisor"
+            ], answers: { k: 4, s: 1, a: 2 }, performancePotential: { performance: 1, potential: 1 } },
+            { id: "ali", name: "Ali", avatar: "img/ali-avatar.png", job: "Pharmacist", age: 26, exp: "2 Years", traits: [
+                "Strong problem-solving abilities and quick decision- making.",
+                "Effective in handling customer queries and complaints and has overall fair product knowledge including cosmoceuticals. His manager’s feedback highlighted his expertise in selling cosmeceutical products and being the go to person in follow up tasks.",
+                "One of the best in identifying customers' real needs and providing the proper cross-selling or recommending upselling.",
+                "Prefers to work individually and when he works in a team, he tries to dominate, blames others and claiming the credit for himself leading to a tense work environment.",
+                "Ach last year: 110%, Q1=114%",
+                "Career aspiration: Inventory Management Supervisor"
+            ], answers: { k: 3, s: 4, a: 1 }, performancePotential: { performance: 3, potential: 1 } },
+            { id: "hossam", name: "Hossam", avatar: "img/hossam-avatar.png", job: "Pharmacist", age: 24, exp: "1 Year", traits: [
+                "Confident. Known for good mentorship skills in guiding newer employees in selling skills, but still needs to make further development in his leadership skills to manage and follow up with the team.",
+                "His manager's feedback and exam scores emphasize his need to study and develop product knowledge, especially in cosmeceutical product knowledge.",
+                "Trusts his experience & prefers practical experience rather than studying.",
+                "Trusted by both colleagues and customers. He demonstrates a positive and enthusiastic attitude, showing a genuine interest in their work, although he sometimes resists feedback.",
+                "Offers ideas for enhancing operations. He is distinctive in understanding and addressing customer needs, ensuring their satisfaction.",
+                "Ach last year: 99%, Q1=96%",
+                "Career aspiration: Branch Manager then Operation & Sales Supervisor"
+            ], answers: { k: 2, s: 4, a: 2 }, performancePotential: { performance: 2, potential: 2 } }
+        ];
+
+        // --- TIMER CONFIG ---
+        // Activity 1 (Performance): Trial=0, First=5, Second=5
+        // Activity 3 (KSA): Trial=0, First=8, Second=10
+        // Activity 2 (9-Box): total=5
+        const TIMER_CONFIG = {
+            performanceRounds: [0, 5, 5],
+            ksaRounds: [0, 8, 10],
+            nineBoxMinutes: 5
+        };
+
+        const TIMER_META_ID = '__TIMERS__';
+
+        let state = {
+            view: 'LOGIN',
+            team: JSON.parse(localStorage.getItem('team_data')) || null,
+            selectedProfile: null,
+            isRubricOpen: false,
+            pendingTimerStart: null,
+            adminTimerExt: { teamName: 'ALL', target: 'performance', roundIndex: 1 },
+            registryPollId: null,
+            registryPollMs: null,
+            evaluations: { k: null, s: null, a: null },
+            isSubmitted: false,
+            result: null,
+            performanceEvaluations: { performance: null, potential: null },
+            isPerformanceSubmitted: false,
+            performanceResult: null,
+            performanceRoundIndex: null,
+            ksaRoundIndex: null,
+            timerId: null,
+            // timerStatusCache: { performance: null, ksa: null, ninebox: null },
+            timerStatusCache: { performance: 'none', ksa: 'none', ninebox: 'none' },
+            nineBoxPlacements: {},
+            isNineBoxSubmitted: false,
+            draggingProfileId: null,
+            profilePreviewId: null,
+            showCoinPopup: false,
+            coinPopupType: null,
+            coinPopupDetails: { gold: 0, silver: 0, message: '' },
+            rubricType: 'KSA',
+            loginRole: 'PARTICIPANT',
+            registry: [], 
+            isSyncing: false,
+            config: { 
+                activity1: true, 
+                activity2: false, 
+                activity3: false, 
+                activeProfiles: ["omar", "youssef", "faisal", "fahd", "ali", "hossam"] 
+            }
+        };
+
+        if (state.team) state.team = normalizeTeam(state.team);
+
+        function getTimersFromMeta(team) {
+            if (!team || team.role !== 'PARTICIPANT') return null;
+            const completedProfiles = Array.isArray(team?.completedProfiles) ? team.completedProfiles : [];
+            const meta = completedProfiles.find((cp) => typeof cp === 'object' && cp && cp.id === TIMER_META_ID);
+            if (!meta || typeof meta !== 'object') return null;
+            const timers = meta.timers;
+            if (!timers) return null;
+            if (typeof timers === 'string') {
+                try {
+                    const parsed = JSON.parse(timers);
+                    return parsed && typeof parsed === 'object' ? parsed : null;
+                } catch (err) {
+                    return null;
+                }
+            }
+            return timers && typeof timers === 'object' ? timers : null;
+        }
+
+        function upsertTimerMeta(team) {
+            if (!team) return;
+            if (team.role !== 'PARTICIPANT') return;
+            const completedProfiles = Array.isArray(team.completedProfiles) ? team.completedProfiles : [];
+            const withoutMeta = completedProfiles.filter((cp) => !(typeof cp === 'object' && cp && cp.id === TIMER_META_ID));
+            const meta = { id: TIMER_META_ID, timers: JSON.stringify(team.timers || {}) };
+            team.completedProfiles = [meta, ...withoutMeta];
+        }
+
+        function normalizeTeam(team) {
+            if (!team) return team;
+            if (!Array.isArray(team.completedProfiles)) team.completedProfiles = [];
+            if (!Array.isArray(team.completedPerformanceProfiles)) team.completedPerformanceProfiles = [];
+            if (!team.completedNineBox) team.completedNineBox = null;
+            if (!team.timers || typeof team.timers !== 'object') team.timers = {};
+            if (!team.timers.performanceRounds || typeof team.timers.performanceRounds !== 'object') team.timers.performanceRounds = {};
+            if (!team.timers.ksaRounds || typeof team.timers.ksaRounds !== 'object') team.timers.ksaRounds = {};
+            if (typeof team.timers.nineBoxEndMs !== 'number') team.timers.nineBoxEndMs = null;
+
+            // If backend doesn't persist `timers`, recover from meta entry.
+            const metaTimers = getTimersFromMeta(team);
+            if (metaTimers && typeof metaTimers === 'object') {
+                team.timers = {
+                    ...(team.timers || {}),
+                    ...(metaTimers || {}),
+                    performanceRounds: {
+                        ...((team.timers && team.timers.performanceRounds) || {}),
+                        ...((metaTimers && metaTimers.performanceRounds) || {})
+                    },
+                    ksaRounds: {
+                        ...((team.timers && team.timers.ksaRounds) || {}),
+                        ...((metaTimers && metaTimers.ksaRounds) || {})
+                    },
+                    nineBoxEndMs: (typeof metaTimers.nineBoxEndMs === 'number') ? metaTimers.nineBoxEndMs : team.timers.nineBoxEndMs
+                };
+            }
+
+            // Keep meta updated so API persistence works.
+            upsertTimerMeta(team);
+            return team;
+        }
+
+        function mergeTeamData(baseTeam, incomingTeam) {
+            if (!incomingTeam) return normalizeTeam(baseTeam);
+            const normalizedIncoming = normalizeTeam(incomingTeam);
+            const normalizedBase = normalizeTeam(baseTeam);
+            if (!normalizedIncoming.completedProfiles.length && normalizedBase?.completedProfiles?.length) {
+                normalizedIncoming.completedProfiles = normalizedBase.completedProfiles;
+            }
+            if (!normalizedIncoming.completedPerformanceProfiles.length && normalizedBase?.completedPerformanceProfiles?.length) {
+                normalizedIncoming.completedPerformanceProfiles = normalizedBase.completedPerformanceProfiles;
+            }
+            if (!normalizedIncoming.completedNineBox && normalizedBase?.completedNineBox) {
+                normalizedIncoming.completedNineBox = normalizedBase.completedNineBox;
+            }
+            // Merge timers conservatively so we don't drop local timer state on partial updates.
+            normalizedIncoming.timers = {
+                ...(normalizedBase?.timers || {}),
+                ...(normalizedIncoming?.timers || {}),
+                performanceRounds: {
+                    ...((normalizedBase?.timers && normalizedBase.timers.performanceRounds) || {}),
+                    ...((normalizedIncoming?.timers && normalizedIncoming.timers.performanceRounds) || {})
+                },
+                ksaRounds: {
+                    ...((normalizedBase?.timers && normalizedBase.timers.ksaRounds) || {}),
+                    ...((normalizedIncoming?.timers && normalizedIncoming.timers.ksaRounds) || {})
+                },
+                nineBoxEndMs: (normalizedIncoming?.timers && typeof normalizedIncoming.timers.nineBoxEndMs === 'number')
+                    ? normalizedIncoming.timers.nineBoxEndMs
+                    : ((normalizedBase?.timers && typeof normalizedBase.timers.nineBoxEndMs === 'number') ? normalizedBase.timers.nineBoxEndMs : null)
+            };
+
+            upsertTimerMeta(normalizedIncoming);
+            return normalizedIncoming;
+        }
+
+        async function fetchRegistry(silent = false) {
+            try {
+                // Add cache-busting to avoid stale GET responses from proxies or CDNs
+                const res = await fetch(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
+                if (!res.ok) throw new Error("Network error");
+                const data = await res.json();
+                console.debug('fetchRegistry response:', data);
+                // Accept either a top-level array or an object with a `registry` array
+                let registryData = [];
+                if (Array.isArray(data)) registryData = data;
+                else if (data && Array.isArray(data.registry)) registryData = data.registry;
+                else registryData = [];
+                state.registry = registryData.map((t) => normalizeTeam(t));
+                const cfg = state.registry.find(t => t.name === '__SESSION_CONFIG__');
+                if (cfg && Array.isArray(cfg.completedProfiles)) {
+                    const maybeConfig = cfg.completedProfiles.find((v) => typeof v === 'string' && v.trim().startsWith('{'));
+                    if (maybeConfig) {
+                        try { state.config = JSON.parse(maybeConfig); } catch (err) {}
+                    }
+                }
+
+                // Keep local team in sync (timers, coins, etc.) so admin changes reflect immediately.
+                if (state.team && state.team.name) {
+                    const myName = String(state.team.name || '').toLowerCase();
+                    const updatedSelf = state.registry.find(t => String(t.name || '').toLowerCase() === myName);
+                    if (updatedSelf) {
+                        state.team = mergeTeamData(state.team, updatedSelf);
+                        localStorage.setItem('team_data', JSON.stringify(state.team));
+                    }
+                }
+
+                if (!silent) render();
+                return state.registry;
+            } catch (err) {
+                console.error("Fetch Registry Error:", err);
+                return state.registry;
+            }
+        }
+
+        async function apiCall(payload) {
+            state.isSyncing = true;
+            renderSyncStatus();
+            try {
+                const res = await fetch(API_URL + '?_=' + Date.now(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    cache: 'no-store'
+                });
+                if (!res.ok) throw new Error("Network response not ok");
+                const result = await res.json();
+                console.debug('apiCall result:', result);
+                if (result && result.success) {
+                    // Prefer registry from response, but fallback to refetch if absent
+                    if (Array.isArray(result.registry)) state.registry = result.registry.map((t) => normalizeTeam(t));
+                    if (state.team) {
+                        const lookup = String(payload?.team?.newName || payload?.team?.name || '').toLowerCase();
+                        const updatedSelf = state.registry.find(t => String(t.name || '').toLowerCase() === lookup);
+                        if (updatedSelf) {
+                            state.team = mergeTeamData(state.team, updatedSelf);
+                            localStorage.setItem('team_data', JSON.stringify(state.team));
+                        }
+                    }
+                    // Immediately re-render so UI reflects changes without waiting
+                    // render();
+                    return true;
+                }
+                return false;
+            } catch (err) {
+                console.error("API Call Error:", err);
+                return false;
+            } finally {
+                state.isSyncing = false;
+                renderSyncStatus();
+            }
+        }
+
+        async function pushTeamUpdate(team, action = 'upsert') {
+            return apiCall({
+                action,
+                team: {
+                    name: team.name,
+                    role: team.role,
+                    goldCoins: team.goldCoins,
+                    silverCoins: team.silverCoins,
+                    completedProfiles: team.completedProfiles,
+                    completedPerformanceProfiles: team.completedPerformanceProfiles,
+                    completedNineBox: team.completedNineBox
+                }
+            });
+        }
+
+        function save() {
+                console.trace('SAVE CALLED');  // ← Add this to see the call stack
+
+            if (state.team) {
+                state.team = normalizeTeam(state.team);
+                localStorage.setItem('team_data', JSON.stringify(state.team));
+                pushTeamUpdate(state.team);
+            }
+        }
+        function navigate(view, data = null) {
+            state.view = view;
+            if (data) state.selectedProfile = data;
+            state.showCoinPopup = false;
+            state.profilePreviewId = null;
+            state.isRubricOpen = false;
+            if (view === 'PROFILE_SELECTION') {
+                if (state.ksaRoundIndex === null) {
+                    const completedIds = getCompletedIds(state.team?.completedProfiles || []);
+                    state.ksaRoundIndex = getActiveRoundIndex(completedIds, KSA_ROUNDS);
+                }
+                state.isSubmitted = false;
+                state.evaluations = { k: null, s: null, a: null };
+                state.result = null;
+            }
+            if (view === 'PROFILE_EVALUATION') {
+                const entry = getCompletedKsaEntry(state.selectedProfile?.id);
+                if (entry && typeof entry === 'object') {
+                    state.isSubmitted = true;
+                    state.evaluations = { k: entry.k ?? null, s: entry.s ?? null, a: entry.a ?? null };
+                } else if (entry) {
+                    state.isSubmitted = true;
+                    state.evaluations = { k: null, s: null, a: null };
+                } else {
+                    state.isSubmitted = false;
+                    state.evaluations = { k: null, s: null, a: null };
+                }
+                state.result = null;
+            }
+            if (view === 'PERFORMANCE_SELECTION') {
+                if (state.performanceRoundIndex === null) {
+                    const completedIds = getCompletedIds(state.team?.completedPerformanceProfiles || []);
+                    state.performanceRoundIndex = getActiveRoundIndex(completedIds, PERFORMANCE_ROUNDS);
+                }
+                state.isPerformanceSubmitted = false;
+                state.performanceEvaluations = { performance: null, potential: null };
+                state.performanceResult = null;
+            }
+            if (view === 'PERFORMANCE_EVALUATION') {
+                const entry = getCompletedPerformanceEntry(state.selectedProfile?.id);
+                if (entry) {
+                    state.isPerformanceSubmitted = true;
+                    state.performanceEvaluations = { performance: entry.performance, potential: entry.potential };
+                } else {
+                    state.isPerformanceSubmitted = false;
+                    state.performanceEvaluations = { performance: null, potential: null };
+                }
+                state.performanceResult = null;
+            }
+            if (view === 'NINE_BOX') {
+                const saved = state.team?.completedNineBox;
+                if (saved && saved.mode === 'labels' && saved.placements) {
+                    state.nineBoxPlacements = saved.placements;
+                    state.isNineBoxSubmitted = true;
+                } else {
+                    state.nineBoxPlacements = {};
+                    state.isNineBoxSubmitted = false;
+                }
+            }
+      
+            if (['LANDING', 'ADMIN_DASHBOARD', 'LEADERBOARD'].includes(view)) { fetchRegistry(true); }
+
+            render();
+            window.scrollTo(0, 0);
+        }
+
+        function render() {
+                console.log('RENDER CALLED:', state.view); // ← Add this
+
+            const root = document.getElementById('root');
+            switch(state.view) {
+                case 'LOGIN': root.innerHTML = renderLogin(); break;
+                case 'LANDING': root.innerHTML = renderLanding(); break;
+                case 'PERFORMANCE_SELECTION': root.innerHTML = renderPerformanceSelection(); break;
+                case 'PERFORMANCE_EVALUATION': root.innerHTML = renderPerformanceEvaluation(); break;
+                case 'PERFORMANCE_ROUNDS': root.innerHTML = renderPerformanceRounds(); break;
+                case 'NINE_BOX': root.innerHTML = renderNineBox(); break;
+                case 'PROFILE_SELECTION': root.innerHTML = renderProfileSelection(); break;
+                case 'PROFILE_EVALUATION': root.innerHTML = renderEvaluation(); break;
+                case 'KSA_ROUNDS': root.innerHTML = renderKsaRounds(); break;
+                case 'LEADERBOARD': root.innerHTML = renderLeaderboard(); break;
+                case 'ADMIN_DASHBOARD': root.innerHTML = renderAdminDashboard(); break;
+            }
+            renderModal();
+            renderCoinPopup();
+            renderSyncStatus();
+            ensureTimerTick();
+            ensureRegistryPolling();
+        }
+
+        function ensureRegistryPolling() {
+    const isLoggedIn = Boolean(state.team);
+    const role = state.team?.role || null;
+
+    const shouldPoll = Boolean(
+        isLoggedIn && (
+            role === 'PARTICIPANT' ||
+            (role === 'ADMIN' && ['ADMIN_DASHBOARD', 'LEADERBOARD'].includes(state.view))
+        )
+    );
+
+    const desiredMs = role === 'ADMIN' ? 2500 : 5000;
+
+    if (!shouldPoll) {
+        if (state.registryPollId) {
+            clearInterval(state.registryPollId);
+            state.registryPollId = null;
+            state.registryPollMs = null;
+        }
+        return;
+    }
+
+    // Restart polling if interval needs to change (e.g., role/view change)
+    if (state.registryPollId && state.registryPollMs !== desiredMs) {
+        clearInterval(state.registryPollId);
+        state.registryPollId = null;
+        state.registryPollMs = null;
+    }
+
+    if (state.registryPollId) return;
+    state.registryPollMs = desiredMs;
+
+    state.registryPollId = setInterval(async () => {
+        try {
+            const res = await fetch(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            let registryData = [];
+            if (Array.isArray(data)) registryData = data;
+            else if (data && Array.isArray(data.registry)) registryData = data.registry;
+            
+            state.registry = registryData.map((t) => normalizeTeam(t));
+            
+            // Update config from registry
+            const cfg = state.registry.find(t => t.name === '__SESSION_CONFIG__');
+            if (cfg && Array.isArray(cfg.completedProfiles)) {
+                const maybeConfig = cfg.completedProfiles.find((v) => typeof v === 'string' && v.trim().startsWith('{'));
+                if (maybeConfig) {
+                    try { 
+                        state.config = JSON.parse(maybeConfig);
+                    } catch (err) {}
+                }
+            }
+            
+            // Admin views need a re-render to show live progress/coins.
+            if (role === 'ADMIN' && ['ADMIN_DASHBOARD', 'LEADERBOARD'].includes(state.view)) {
+                render();
+                return;
+            }
+
+            // Participant landing page uses DOM hooks for lock/unlock buttons.
+            if (state.view === 'LANDING') {
+                updateActivityButtons();
+            }
+        } catch (err) {
+            console.error("Registry polling error:", err);
+        }
+    }, desiredMs);
+}
+
+        function renderSyncStatus() {
+            const el = document.getElementById('sync-indicator');
+            if (!el) return;
+            el.innerHTML = state.isSyncing 
+                ? `<div class="p-2 bg-amber-50 rounded-xl border border-amber-200"><svg class="w-5 h-5 text-amber-500 spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></div>` 
+                : `<div class="p-2 bg-green-50 rounded-xl border border-green-200"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>`;
+        }
+
+        function renderLogin() {
+            return `<div class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-slate-900">
+                <div class="w-full max-w-md bg-white rounded-[3rem] shadow-2xl p-6 sm:p-8 animate-pop">
+                    <div class="text-center mb-8">
+                        <div class="inline-block mb-4"><img src="img/full-logo-png.png" alt="United Pharmacy Logo" class="w-24 h-24 sm:w-32 sm:h-32 object-contain mx-auto" /></div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight leading-none uppercase">United Pharmacy</h1>
+                        <p class="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-3">Training Portal</p>
+                    </div>
+                    <div class="flex p-1 bg-slate-100 rounded-2xl mb-8">
+                        <button onclick="setLoginRole('PARTICIPANT')" class="flex-1 py-3 text-xs font-black uppercase rounded-xl transition-all ${state.loginRole === 'PARTICIPANT' ? 'bg-white shadow-sm text-sky-600' : 'text-slate-400'}">Learner</button>
+                        <button onclick="setLoginRole('ADMIN')" class="flex-1 py-3 text-xs font-black uppercase rounded-xl transition-all ${state.loginRole === 'ADMIN' ? 'bg-white shadow-sm text-sky-600' : 'text-slate-400'}">Admin</button>
+                    </div>
+                    <div class="space-y-6">
+                        ${state.loginRole === 'PARTICIPANT' ? `<div><input type="text" id="teamInput" placeholder="Enter Team Name..." class="w-full px-5 py-4 sm:px-6 sm:py-5 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:border-sky-500 outline-none font-bold text-lg"></div>` : 
+                        `<div class="space-y-4">
+                            <input type="text" id="adminUser" placeholder="@username" class="w-full px-5 py-4 sm:px-6 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold">
+                            <input type="password" id="adminPass" placeholder="••••••••" class="w-full px-5 py-4 sm:px-6 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold">
+                        </div>`}
+                        <button id="loginBtn" onclick="handleLogin()" class="w-full py-4 sm:py-5 bg-sky-600 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all text-base sm:text-lg">Enter</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function updateActivityButtons() {
+    const activity1Btn = document.querySelector('[data-activity="activity1"]');
+    const activity2Btn = document.querySelector('[data-activity="activity2"]');
+    const activity3Btn = document.querySelector('[data-activity="activity3"]');
+    
+    if (activity1Btn) {
+        if (state.config.activity1) {
+            activity1Btn.onclick = () => navigate('PERFORMANCE_ROUNDS');
+            activity1Btn.classList.remove('opacity-50', 'grayscale');
+        } else {
+            activity1Btn.onclick = () => alert('Locked');
+            activity1Btn.classList.add('opacity-50', 'grayscale');
+        }
+    }
+    
+    if (activity2Btn) {
+        if (state.config.activity2) {
+            activity2Btn.onclick = () => openNineBox();
+            activity2Btn.classList.remove('opacity-50', 'grayscale');
+        } else {
+            activity2Btn.onclick = () => alert('Locked');
+            activity2Btn.classList.add('opacity-50', 'grayscale');
+        }
+    }
+    
+    if (activity3Btn) {
+        if (state.config.activity3) {
+            activity3Btn.onclick = () => navigate('KSA_ROUNDS');
+            activity3Btn.classList.remove('opacity-50', 'grayscale');
+        } else {
+            activity3Btn.onclick = () => alert('Locked');
+            activity3Btn.classList.add('opacity-50', 'grayscale');
+        }
+    }
+}
+
+function renderLanding() {
+    const isAdmin = state.team.role === 'ADMIN';
+    return `<div class="min-h-screen bg-slate-50">
+        <header class="glass sticky top-0 z-40 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-sky-600 rounded-full flex items-center justify-center text-white font-black shadow-lg">${state.team.name[0].toUpperCase()}</div>
+                <h2 class="font-black text-slate-800 uppercase text-xs tracking-widest leading-none">${state.team.name}</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="sync-indicator"></div>
+                <button onclick="handleLogout()" class="text-red-500 font-black text-[10px] uppercase border border-red-100 px-3 py-1 rounded-full bg-white">Logout</button>
+            </div>
+        </header>
+        <main class="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 animate-pop">
+            <div class="py-2 sm:py-4"><h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">${isAdmin ? 'Control Center' : 'Training Modules'}</h1></div>
+            <div class="grid gap-6">
+                ${isAdmin ? `<button onclick="navigate('ADMIN_DASHBOARD')" class="w-full bg-slate-900 text-white p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group">
+                    <div class="bg-sky-600 p-4 sm:p-5 rounded-[2rem]"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg></div>
+                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black">Admin Dashboard</h3><p class="text-slate-400 font-medium text-sm">Manage sessions and teams.</p></div>
+                </button>` : `
+                <button data-activity="activity1" onclick="${state.config.activity1 ? "navigate('PERFORMANCE_ROUNDS')" : "alert('Locked')" }" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all active:scale-[0.98] ${!state.config.activity1 ? 'opacity-50 grayscale' : ''}">
+                    <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></div>
+                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 1: Evaluating Performance &amp; Potential</h3><p class="text-slate-500 font-medium text-sm">Assess performance and potential on a 1-3 scale.</p></div>
+                </button>
+                <button data-activity="activity2" onclick="${state.config.activity2 ? "openNineBox()" : "alert('Locked')"}" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group ${!state.config.activity2 ? 'opacity-50 grayscale' : ''}">
+                    <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg></div>
+                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 2: 9-Box Grid</h3><p class="text-slate-500 font-medium text-sm">Drag box names into the performance/potential grid.</p></div>
+                </button>
+                <button data-activity="activity3" onclick="${state.config.activity3 ? "navigate('KSA_ROUNDS')" : "alert('Locked')" }" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all active:scale-[0.98] ${!state.config.activity3 ? 'opacity-50 grayscale' : ''}">
+                    <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 3: Evaluating KSA</h3><p class="text-slate-500 font-medium text-sm">Pharmacist evaluation module.</p></div>
+                </button>
+                `}
+                <button onclick="navigate('LEADERBOARD')" class="w-full bg-white border-2 border-slate-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 transition-all active:scale-[0.98]">
+                    <div class="bg-slate-50 p-4 sm:p-5 rounded-[2rem] text-slate-600"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
+                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Leaderboard</h3><p class="text-slate-500 font-medium text-sm">Live team rankings.</p></div>
+                </button>
+            </div>
+        </main>
+    </div>`;
+}
+       
+        function renderAdminDashboard() {
+            const teams = state.registry.filter(t => t.role === 'PARTICIPANT');
+            const timerTargets = [
+                { key: 'performance', label: 'Activity 1 (Performance)' },
+                { key: 'ninebox', label: 'Activity 2 (9-Box)' },
+                { key: 'ksa', label: 'Activity 3 (KSA)' }
+            ];
+
+            const target = state.adminTimerExt?.target || 'performance';
+            const roundOptions = target === 'performance'
+                ? [
+                    { value: 0, label: 'Trial Round' },
+                    { value: 1, label: 'First Round' },
+                    { value: 2, label: 'Second Round' }
+                ]
+                : target === 'ksa'
+                    ? [
+                        { value: 0, label: 'Trial Round' },
+                        { value: 1, label: 'First Round' },
+                        { value: 2, label: 'Second Round' }
+                    ]
+                    : [];
+
+            return `<div class="min-h-screen bg-slate-100 pb-20">
+                <header class="bg-slate-900 text-white p-4 sm:p-6 sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+                    <div class="flex items-center gap-4">
+                        <button onclick="navigate('LANDING')" class="p-2 hover:bg-slate-800 rounded-full transition-all"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <h1 class="font-black text-xl tracking-tighter uppercase">Admin Panel</h1>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="adminUpdate()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 font-black text-[10px] uppercase tracking-widest">Update</button>
+                        <div id="sync-indicator"></div>
+                    </div>
+                </header>
+                <div class="max-w-7xl mx-auto p-4 sm:p-6 space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 sm:p-8 rounded-[2.5rem] shadow-xl space-y-6">
+                            <h3 class="font-black text-slate-400 uppercase text-[10px] tracking-widest">Global Session Controls</h3>
+                            <div class="space-y-3">
+                                <button onclick="toggleSessionConfig('activity1')" class="w-full flex items-center justify-between p-4 rounded-2xl border-2 ${state.config.activity1 ? 'bg-sky-50 border-sky-500' : 'bg-slate-50'}">
+                                    <span class="font-black text-sm uppercase">Activity 1: Evaluating Performance & Potential</span>
+                                    <div class="w-10 h-5 bg-slate-200 rounded-full relative"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${state.config.activity1 ? 'translate-x-5 bg-sky-600' : ''}"></div></div>
+                                </button>
+                                <button onclick="toggleSessionConfig('activity2')" class="w-full flex items-center justify-between p-4 rounded-2xl border-2 ${state.config.activity2 ? 'bg-sky-50 border-sky-500' : 'bg-slate-50'}">
+                                    <span class="font-black text-sm uppercase">Activity 2: 9-Box Grid</span>
+                                    <div class="w-10 h-5 bg-slate-200 rounded-full relative"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${state.config.activity2 ? 'translate-x-5 bg-sky-600' : ''}"></div></div>
+                                </button>
+                                <button onclick="toggleSessionConfig('activity3')" class="w-full flex items-center justify-between p-4 rounded-2xl border-2 ${state.config.activity3 ? 'bg-sky-50 border-sky-500' : 'bg-slate-50'}">
+                                    <span class="font-black text-sm uppercase">Activity 3: Evaluating KSA</span>
+                                    <div class="w-10 h-5 bg-slate-200 rounded-full relative"><div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all ${state.config.activity3 ? 'translate-x-5 bg-sky-600' : ''}"></div></div>
+                                </button>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-100 space-y-4">
+                                <h4 class="font-black text-slate-400 uppercase text-[10px] tracking-widest">Add Time (+1 Minute)</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Team</label>
+                                        <select onchange="setAdminTimerExt('teamName', this.value)" class="w-full px-4 py-3 rounded-2xl border-2 bg-slate-50 font-black text-sm">
+                                            <option value="ALL" ${state.adminTimerExt.teamName === 'ALL' ? 'selected' : ''}>All Teams</option>
+                                            ${teams.map(t => `<option value="${t.name}" ${state.adminTimerExt.teamName === t.name ? 'selected' : ''}>${t.name}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Activity</label>
+                                        <select onchange="setAdminTimerExt('target', this.value)" class="w-full px-4 py-3 rounded-2xl border-2 bg-slate-50 font-black text-sm">
+                                            ${timerTargets.map(tt => `<option value="${tt.key}" ${(state.adminTimerExt.target || 'performance') === tt.key ? 'selected' : ''}>${tt.label}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2 ${target === 'ninebox' ? 'sm:col-span-2' : ''}">
+                                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Round</label>
+                                        ${target === 'ninebox'
+                                            ? `<div class="w-full px-4 py-3 rounded-2xl border-2 bg-slate-50 font-black text-sm text-slate-700">Overall Timer</div>`
+                                            : `<select onchange="setAdminTimerExt('roundIndex', this.value)" class="w-full px-4 py-3 rounded-2xl border-2 bg-slate-50 font-black text-sm">
+                                                ${roundOptions.map(ro => `<option value="${ro.value}" ${Number(state.adminTimerExt.roundIndex) === ro.value ? 'selected' : ''}>${ro.label}</option>`).join('')}
+                                            </select>`
+                                        }
+                                    </div>
+                                </div>
+                                <button onclick="adminApplyTimerExtension()" class="w-full p-4 rounded-2xl border-2 bg-amber-50 border-amber-200 text-amber-800 font-black text-sm uppercase">Add +1 Minute</button>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 sm:p-8 rounded-[2.5rem] shadow-xl space-y-6">
+                            <h3 class="font-black text-slate-400 uppercase text-[10px] tracking-widest">Available Profiles</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                ${PROFILES.map(p => `<button onclick="toggleProfileStatus('${p.id}')" class="p-3 rounded-xl border-2 text-[10px] font-black uppercase ${state.config.activeProfiles.includes(p.id) ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate-50 border-slate-100 text-slate-400'}">${p.name.split(' ')[0]}</button>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-[2.5rem] shadow-xl overflow-hidden">
+                        <div class="p-5 sm:p-8 border-b flex items-center justify-between bg-slate-50/50">
+                            <h3 class="font-black text-slate-800 uppercase text-sm tracking-tight">Manage Teams (${teams.length})</h3>
+                            <button onclick="adminAddTeam()" class="bg-slate-900 text-white px-6 py-2 rounded-xl font-black text-xs uppercase">New Team</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 border-b">
+                                    <tr><th class="p-4 sm:p-6 text-[10px] font-black uppercase text-slate-400">Team</th><th class="p-4 sm:p-6 text-[10px] font-black uppercase text-slate-400">Progress (Activities)</th><th class="p-4 sm:p-6 text-[10px] font-black uppercase text-slate-400">Coins</th><th class="p-4 sm:p-6 text-[10px] font-black uppercase text-slate-400 text-right">Actions</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${teams.map(t => {
+                                        const profiles = (Array.isArray(t.completedProfiles) ? t.completedProfiles : []).filter((cp) => !(typeof cp === 'object' && cp && cp.id === TIMER_META_ID));
+                                        const completedPerformance = Array.isArray(t.completedPerformanceProfiles) ? t.completedPerformanceProfiles : [];
+                                        const completedNineBox = t.completedNineBox ? 1 : 0;
+                                        const activityCount = [completedPerformance.length > 0, completedNineBox > 0, profiles.length > 0].filter(Boolean).length;
+                                        return `<tr class="hover:bg-slate-50/80 transition-colors">
+                                            <td class="p-4 sm:p-6 font-black text-slate-800">${t.name}</td>
+                                            <td class="p-4 sm:p-6">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-black text-slate-800">${activityCount} / 3</span>
+                                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Completed</span>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 sm:p-6">
+                                                <div class="flex gap-4">
+                                                    <div class="flex flex-col"><span class="text-[8px] font-black text-yellow-600">DIAMOND</span><span class="font-black text-yellow-600">${t.goldCoins}</span></div>
+                                                    <div class="flex flex-col"><span class="text-[8px] font-black text-slate-400">GOLD</span><span class="font-black text-slate-400">${t.silverCoins}</span></div>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 sm:p-6 text-right space-x-2">
+                                                <div class="inline-flex items-center gap-2">
+                                                    <button onclick="adminAdjustCoins('${t.name}', -1, 0)" class="px-2 py-1 text-[10px] font-black rounded-md bg-yellow-50 text-yellow-700 border border-yellow-200">-D</button>
+                                                    <button onclick="adminAdjustCoins('${t.name}', 1, 0)" class="px-2 py-1 text-[10px] font-black rounded-md bg-yellow-50 text-yellow-700 border border-yellow-200">+D</button>
+                                                    <button onclick="adminAdjustCoins('${t.name}', 0, -1)" class="px-2 py-1 text-[10px] font-black rounded-md bg-slate-50 text-slate-600 border border-slate-200">-G</button>
+                                                    <button onclick="adminAdjustCoins('${t.name}', 0, 1)" class="px-2 py-1 text-[10px] font-black rounded-md bg-slate-50 text-slate-600 border border-slate-200">+G</button>
+                                                </div>
+                                                <button onclick="adminEditTeam('${t.name}')" class="text-sky-600 p-2 hover:bg-sky-50 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                <button onclick="adminDeleteTeam('${t.name}')" class="text-red-600 p-2 hover:bg-red-50 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                            </td>
+                                        </tr>`}).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderPerformanceSelection() {
+            const completed = state.team.completedPerformanceProfiles || [];
+            const completedIds = getCompletedIds(completed);
+            const activeIndex = getActiveRoundIndex(completedIds, PERFORMANCE_ROUNDS);
+            const roundIndex = state.performanceRoundIndex !== null ? state.performanceRoundIndex : activeIndex;
+            const round = PERFORMANCE_ROUNDS[roundIndex];
+            const roundProfiles = round.ids.map((id) => PROFILES.find((p) => p.id === id)).filter(Boolean);
+            const timerText = getRoundTimerText('performance', roundIndex);
+            return `<div class="min-h-screen bg-slate-50 pb-28">
+                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <button onclick="navigate('PERFORMANCE_ROUNDS')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <h1 class="font-black uppercase tracking-widest text-xs text-slate-400 hidden sm:block truncate">Performance & Potential</h1>
+                    </div>
+                    <div class="flex justify-center">
+                        ${renderTimerPill('timer-performance', timerText)}
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                        <button onclick="navigate('LEADERBOARD')" class="bg-sky-600 text-white p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></button>
+                    </div>
+                </header>
+                <main class="p-4 sm:p-6 max-w-xl mx-auto">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h2 class="text-lg font-black text-slate-800">${round.label}</h2>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Round ${roundIndex + 1} of ${PERFORMANCE_ROUNDS.length}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    ${roundProfiles.map(p => {
+                        const isDone = completed.some(c => (typeof c === 'string' ? c === p.id : c.id === p.id));
+                        const isLocked = !state.config.activeProfiles.includes(p.id);
+                        return `<div onclick="${isLocked ? '' : `navigate('PERFORMANCE_EVALUATION', ${JSON.stringify(p).replace(/"/g, '&quot;')})`}" 
+                                      class="bg-white p-4 sm:p-5 rounded-[2.5rem] shadow-xl border-2 transition-all ${isDone ? 'border-green-400 bg-green-50/50' : isLocked ? 'opacity-40 border-dashed border-slate-300 grayscale' : 'border-white hover:border-sky-300 active:scale-95'}">
+                            <div class="relative">
+                                          <img src="${p.avatar}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg object-cover aspect-square" onerror="this.src='img/default-avatar.png'">
+                                ${isDone ? '<div class="absolute -bottom-1 -right-1 bg-green-500 text-white p-1.5 rounded-full border-4 shadow-md"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>' : ''}
+                                ${isLocked ? '<div class="absolute inset-0 flex items-center justify-center text-slate-400"><svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"></path></svg></div>' : ''}
+                            </div>
+                            <div class="mt-3"><h4 class="font-black text-slate-800 text-sm tracking-tight">${isLocked ? 'Locked' : p.name}</h4></div>
+                        </div>`;
+                    }).join('')}
+                    </div>
+                </main>
+            </div>`;
+        }
+
+        function renderPerformanceRounds() {
+            const completedIds = getCompletedIds(state.team?.completedPerformanceProfiles || []);
+            const activeIndex = getActiveRoundIndex(completedIds, PERFORMANCE_ROUNDS);
+            return `<div class="min-h-screen bg-slate-50">
+                <header class="glass sticky top-0 z-40 p-4 flex items-center justify-between border-b">
+                    <button onclick="navigate('LANDING')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <h1 class="font-black uppercase tracking-widest text-xs text-slate-400">Performance & Potential</h1>
+                    <div class="w-10"></div>
+                </header>
+                <main class="p-4 sm:p-8 max-w-md mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="inline-flex px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-widest">Activity 1</span>
+                    </div>
+                    ${PERFORMANCE_ROUNDS.map((round, idx) => {
+                        const isActive = idx <= activeIndex;
+                        return `<button onclick="${isActive ? `openRound('performance', ${idx})` : ''}" class="w-full text-left px-5 py-3 sm:py-4 rounded-2xl font-black uppercase tracking-widest ${isActive ? 'bg-sky-900 text-white shadow-lg' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                            ${round.label}
+                        </button>`;
+                    }).join('')}
+                </main>
+            </div>`;
+        }
+
+        function renderProfileSelection() {
+            const completed = state.team.completedProfiles || [];
+            const completedIds = getCompletedIds(completed);
+            const activeIndex = getActiveRoundIndex(completedIds, KSA_ROUNDS);
+            const roundIndex = state.ksaRoundIndex !== null ? state.ksaRoundIndex : activeIndex;
+            const round = KSA_ROUNDS[roundIndex];
+            const roundProfiles = round.ids.map((id) => PROFILES.find((p) => p.id === id)).filter(Boolean);
+            const timerText = getRoundTimerText('ksa', roundIndex);
+            return `<div class="min-h-screen bg-slate-50 pb-28">
+                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <button onclick="navigate('KSA_ROUNDS')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <h1 class="font-black uppercase tracking-widest text-xs text-slate-400 hidden sm:block truncate">Select Profile</h1>
+                    </div>
+                    <div class="flex justify-center">
+                        ${renderTimerPill('timer-ksa', timerText)}
+                    </div>
+                    <div class="flex items-center justify-end gap-2">
+                        <button onclick="navigate('LEADERBOARD')" class="bg-sky-600 text-white p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 0 01-2-2z"></path></svg></button>
+                    </div>
+                </header>
+                <main class="p-4 sm:p-6 max-w-xl mx-auto">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h2 class="text-lg font-black text-slate-800">${round.label}</h2>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Round ${roundIndex + 1} of ${KSA_ROUNDS.length}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    ${roundProfiles.map(p => {
+                        const isDone = completed.some(c => (typeof c === 'string' ? c === p.id : c.id === p.id));
+                        const isLocked = !state.config.activeProfiles.includes(p.id);
+                        return `<div onclick="${isLocked ? '' : `navigate('PROFILE_EVALUATION', ${JSON.stringify(p).replace(/"/g, '&quot;')})`}" 
+                                      class="bg-white p-4 sm:p-5 rounded-[2.5rem] shadow-xl border-2 transition-all ${isDone ? 'border-green-400 bg-green-50/50' : isLocked ? 'opacity-40 border-dashed border-slate-300 grayscale' : 'border-white hover:border-sky-300 active:scale-95'}">
+                            <div class="relative">
+                                          <img src="${p.avatar}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg object-cover aspect-square" onerror="this.src='img/default-avatar.png'">
+                                ${isDone ? '<div class="absolute -bottom-1 -right-1 bg-green-500 text-white p-1.5 rounded-full border-4 shadow-md"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg></div>' : ''}
+                                ${isLocked ? '<div class="absolute inset-0 flex items-center justify-center text-slate-400"><svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"></path></svg></div>' : ''}
+                            </div>
+                            <div class="mt-3"><h4 class="font-black text-slate-800 text-sm tracking-tight">${isLocked ? 'Locked' : p.name}</h4></div>
+                        </div>`;
+                    }).join('')}
+                    </div>
+                </main>
+            </div>`;
+        }
+
+        function renderKsaRounds() {
+            const completedIds = getCompletedIds(state.team?.completedProfiles || []);
+            const activeIndex = getActiveRoundIndex(completedIds, KSA_ROUNDS);
+            return `<div class="min-h-screen bg-slate-50">
+                <header class="glass sticky top-0 z-40 p-4 flex items-center justify-between border-b">
+                    <button onclick="navigate('LANDING')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <h1 class="font-black uppercase tracking-widest text-xs text-slate-400">Evaluating KSA</h1>
+                    <div class="w-10"></div>
+                </header>
+                <main class="p-4 sm:p-8 max-w-md mx-auto space-y-6">
+                    <div class="text-center">
+                        <span class="inline-flex px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-widest">Activity 3</span>
+                    </div>
+                    ${KSA_ROUNDS.map((round, idx) => {
+                        const isActive = idx <= activeIndex;
+                        return `<button onclick="${isActive ? `openRound('ksa', ${idx})` : ''}" class="w-full text-left px-5 py-3 sm:py-4 rounded-2xl font-black uppercase tracking-widest ${isActive ? 'bg-sky-900 text-white shadow-lg' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                            ${round.label}
+                        </button>`;
+                    }).join('')}
+                </main>
+            </div>`;
+        }
+
+        function getCompletedPerformanceEntry(profileId) {
+            if (!profileId || !state.team || !Array.isArray(state.team.completedPerformanceProfiles)) return null;
+            return state.team.completedPerformanceProfiles.find(cp => (typeof cp === 'string' ? cp === profileId : cp.id === profileId)) || null;
+        }
+
+        function getCompletedKsaEntry(profileId) {
+            if (!profileId || !state.team || !Array.isArray(state.team.completedProfiles)) return null;
+            return state.team.completedProfiles.find(cp => (typeof cp === 'string' ? cp === profileId : cp.id === profileId)) || null;
+        }
+
+        // Activity 1 (Performance & Potential)
+        const PERFORMANCE_ROUNDS = [
+            { label: 'Trial Round', ids: ['fahd'] },
+            { label: 'First Round', ids: ['hossam', 'youseff'] },
+            { label: 'Second Round', ids: ['ali', 'omar', 'faisal'] }
+        ];
+
+        // Activity 3 (KSA)
+        const KSA_ROUNDS = [
+            { label: 'Trial Round', ids: ['fahd'] },
+            { label: 'First Round', ids: ['faisal', 'ali'] },
+            { label: 'Second Round', ids: ['hossam', 'omar', 'youseff'] }
+        ];
+
+        function getRoundDurationMinutes(activity, roundIndex) {
+            const idx = typeof roundIndex === 'number' ? roundIndex : 0;
+            if (activity === 'performance') return TIMER_CONFIG.performanceRounds[idx] || 0;
+            if (activity === 'ksa') return TIMER_CONFIG.ksaRounds[idx] || 0;
+            return 0;
+        }
+
+        function getTeamRoundEndMs(team, activity, roundIndex) {
+            const t = normalizeTeam(team);
+            const key = String(roundIndex);
+            if (activity === 'performance') return typeof t.timers.performanceRounds[key] === 'number' ? t.timers.performanceRounds[key] : null;
+            if (activity === 'ksa') return typeof t.timers.ksaRounds[key] === 'number' ? t.timers.ksaRounds[key] : null;
+            return null;
+        }
+
+        function setTeamRoundEndMs(team, activity, roundIndex, endMs) {
+            const t = normalizeTeam(team);
+            const key = String(roundIndex);
+            if (activity === 'performance') t.timers.performanceRounds[key] = endMs;
+            if (activity === 'ksa') t.timers.ksaRounds[key] = endMs;
+        }
+
+        function ensureRoundTimer(activity, roundIndex) {
+            const minutes = getRoundDurationMinutes(activity, roundIndex);
+            if (!state.team || minutes <= 0) return null;
+            const existingEnd = getTeamRoundEndMs(state.team, activity, roundIndex);
+            if (existingEnd) return existingEnd;
+            const endMs = Date.now() + minutes * 60 * 1000;
+            setTeamRoundEndMs(state.team, activity, roundIndex, endMs);
+            upsertTimerMeta(state.team);
+            save();
+            return endMs;
+        }
+
+        function ensureNineBoxTimer() {
+            if (!state.team || TIMER_CONFIG.nineBoxMinutes <= 0) return null;
+            const t = normalizeTeam(state.team);
+            if (typeof t.timers.nineBoxEndMs === 'number' && t.timers.nineBoxEndMs) return t.timers.nineBoxEndMs;
+            const endMs = Date.now() + TIMER_CONFIG.nineBoxMinutes * 60 * 1000;
+            t.timers.nineBoxEndMs = endMs;
+            upsertTimerMeta(t);
+            save();
+            return endMs;
+        }
+
+        function getTimeLeftSeconds(endMs) {
+            if (!endMs) return null;
+            const diff = Math.max(0, endMs - Date.now());
+            return Math.floor(diff / 1000);
+        }
+
+        function formatTimer(seconds) {
+            if (seconds === null) return '';
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // function getRoundTimerText(activity, roundIndex) {
+        //     const minutes = getRoundDurationMinutes(activity, roundIndex);
+        //     if (minutes <= 0) return '';
+        //     const endMs = getTeamRoundEndMs(state.team, activity, roundIndex);
+        //     if (!endMs) return 'Not started';
+        //     const left = getTimeLeftSeconds(endMs);
+        //     if (left <= 0) return 'Time Up';
+        //     return formatTimer(left);
+        // }
+
+function isRoundFullyCompleted(activity, roundIndex) {
+    if (!state.team) return false;
+    const rounds = activity === 'performance' ? PERFORMANCE_ROUNDS : KSA_ROUNDS;
+    const completedList = activity === 'performance' 
+        ? state.team.completedPerformanceProfiles 
+        : state.team.completedProfiles;
+    const round = rounds[roundIndex];
+    if (!round) return false;
+    const completedIds = getCompletedIds(completedList || []);
+    return round.ids.every(id => completedIds.includes(id));
+}
+
+// ============================================
+// TIMER FIX: Replace existing getRoundTimerText()
+// ============================================
+
+function getRoundTimerText(activity, roundIndex) {
+    const minutes = getRoundDurationMinutes(activity, roundIndex);
+    if (minutes <= 0) return '';
+    
+    // Check if round is fully completed
+    if (isRoundFullyCompleted(activity, roundIndex)) return 'Completed';
+    
+    const endMs = getTeamRoundEndMs(state.team, activity, roundIndex);
+    if (!endMs) return 'Not started';
+    const left = getTimeLeftSeconds(endMs);
+    if (left <= 0) return 'Time Up';
+    return formatTimer(left);
+}
+
+// ============================================
+// TIMER FIX: Replace existing renderTimerPill()
+// ============================================
+
+function renderTimerPill(id, text) {
+    if (!text) return '';
+    const isUp = text === 'Time Up';
+    const isNotStarted = text === 'Not started';
+    const isCompleted = text === 'Completed';
+    
+    // Parse minutes and seconds if it's a timer
+    let isCritical = false;
+    if (!isUp && !isNotStarted && !isCompleted && text.includes(':')) {
+        const [minutes, seconds] = text.split(':').map(Number);
+        isCritical = minutes === 0 && seconds < 30;
+    }
+    
+    let bgColor, borderColor, textColor, extraClasses = '';
+    
+    if (isCompleted) {
+        bgColor = 'bg-green-600';
+        borderColor = 'border-green-800';
+        textColor = 'text-white';
+        extraClasses = 'ring-4 ring-green-300 ring-opacity-50';
+    } else if (isUp) {
+        bgColor = 'bg-red-600';
+        borderColor = 'border-red-800';
+        textColor = 'text-white';
+        extraClasses = 'animate-pulse ring-4 ring-red-300 ring-opacity-50';
+    } else if (isNotStarted) {
+        bgColor = 'bg-slate-200';
+        borderColor = 'border-slate-400';
+        textColor = 'text-slate-700';
+    } else if (isCritical) {
+        bgColor = 'bg-orange-500';
+        borderColor = 'border-orange-700';
+        textColor = 'text-white';
+        extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
+    } else {
+        bgColor = 'bg-gradient-to-r from-teal-600 to-cyan-600';
+        borderColor = 'border-teal-700';
+        textColor = 'text-white';
+        extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
+    }
+    
+    const icon = isCompleted ? '✅' : '⏱️';
+    
+    return `<div class="px-8 py-4 rounded-3xl border-2 text-xl sm:text-2xl font-black uppercase tracking-widest text-center tabular-nums shadow-2xl transform hover:scale-110 transition-all duration-300 ${bgColor} ${borderColor} ${textColor} ${extraClasses}" 
+            style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);">
+        <span id="${id}" class="inline-block min-w-[140px] sm:min-w-[160px] drop-shadow-md">${icon} ${text}</span>
+    </div>`;
+}
+
+        function getNineBoxTimerText() {
+            if (TIMER_CONFIG.nineBoxMinutes <= 0) return '';
+            const endMs = state.team?.timers?.nineBoxEndMs || null;
+            if (!endMs) return 'Not started';
+            const left = getTimeLeftSeconds(endMs);
+            if (left <= 0) return 'Time Up';
+            return formatTimer(left);
+        }
+
+        function updateTimerDisplays() {
+            if (!state.team || state.team.role !== 'PARTICIPANT') return;
+
+            const perfIdx = getCurrentPerformanceRoundIndex();
+            const ksaIdx = getCurrentKsaRoundIndex();
+
+            const perfElIds = ['timer-performance', 'timer-performance-eval'];
+            const ksaElIds = ['timer-ksa', 'timer-ksa-eval'];
+            const nineElIds = ['timer-ninebox'];
+
+            const perfText = getRoundTimerText('performance', perfIdx);
+            const ksaText = getRoundTimerText('ksa', ksaIdx);
+            const nineText = getNineBoxTimerText();
+
+            perfElIds.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = perfText;
+            });
+            ksaElIds.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = ksaText;
+            });
+            nineElIds.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = nineText;
+            });
+
+            const newStatus = {
+                performance: getRoundDurationMinutes('performance', perfIdx) > 0 ? (isRoundTimeUp('performance') ? 'up' : 'running') : 'none',
+                ksa: getRoundDurationMinutes('ksa', ksaIdx) > 0 ? (isRoundTimeUp('ksa') ? 'up' : 'running') : 'none',
+                ninebox: TIMER_CONFIG.nineBoxMinutes > 0 ? (isNineBoxTimeUp() ? 'up' : 'running') : 'none'
+            };
+
+            if (state.timerStatusCache.performance !== newStatus.performance || state.timerStatusCache.ksa !== newStatus.ksa || state.timerStatusCache.ninebox !== newStatus.ninebox) {
+                state.timerStatusCache = newStatus;
+                render();
+            }
+        }
+
+        function hasActiveTimers() {
+            if (!state.team || state.team.role !== 'PARTICIPANT') return false;
+            const t = normalizeTeam(state.team);
+            const now = Date.now();
+            const perfActive = Object.values(t.timers.performanceRounds || {}).some((v) => typeof v === 'number' && v > now);
+            const ksaActive = Object.values(t.timers.ksaRounds || {}).some((v) => typeof v === 'number' && v > now);
+            const nineActive = typeof t.timers.nineBoxEndMs === 'number' && t.timers.nineBoxEndMs > now;
+            return perfActive || ksaActive || nineActive;
+        }
+
+        function ensureTimerTick() {
+            if (state.timerId && !hasActiveTimers()) {
+                clearInterval(state.timerId);
+                state.timerId = null;
+                return;
+            }
+            if (state.timerId) return;
+            if (!hasActiveTimers()) return;
+            state.timerId = setInterval(() => {
+                updateTimerDisplays();
+                if (!hasActiveTimers()) {
+                    clearInterval(state.timerId);
+                    state.timerId = null;
+                }
+            }, 1000);
+        }
+
+        function getCurrentPerformanceRoundIndex() {
+            const completedIds = getCompletedIds(state.team?.completedPerformanceProfiles || []);
+            const activeIndex = getActiveRoundIndex(completedIds, PERFORMANCE_ROUNDS);
+            return state.performanceRoundIndex !== null ? state.performanceRoundIndex : activeIndex;
+        }
+
+        function getCurrentKsaRoundIndex() {
+            const completedIds = getCompletedIds(state.team?.completedProfiles || []);
+            const activeIndex = getActiveRoundIndex(completedIds, KSA_ROUNDS);
+            return state.ksaRoundIndex !== null ? state.ksaRoundIndex : activeIndex;
+        }
+
+        function getRoundTimeLeftSeconds(activity) {
+            if (!state.team) return null;
+            if (activity === 'performance') {
+                const idx = getCurrentPerformanceRoundIndex();
+                if (getRoundDurationMinutes('performance', idx) <= 0) return null;
+                const endMs = getTeamRoundEndMs(state.team, 'performance', idx);
+                if (!endMs) return null;
+                return getTimeLeftSeconds(endMs);
+            }
+            if (activity === 'ksa') {
+                const idx = getCurrentKsaRoundIndex();
+                if (getRoundDurationMinutes('ksa', idx) <= 0) return null;
+                const endMs = getTeamRoundEndMs(state.team, 'ksa', idx);
+                if (!endMs) return null;
+                return getTimeLeftSeconds(endMs);
+            }
+            return null;
+        }
+
+        function isRoundTimeUp(activity) {
+            if (!state.team) return false;
+            if (activity === 'performance') {
+                const idx = getCurrentPerformanceRoundIndex();
+                if (getRoundDurationMinutes('performance', idx) <= 0) return false;
+                const endMs = getTeamRoundEndMs(state.team, 'performance', idx);
+                return Boolean(endMs && Date.now() >= endMs);
+            }
+            if (activity === 'ksa') {
+                const idx = getCurrentKsaRoundIndex();
+                if (getRoundDurationMinutes('ksa', idx) <= 0) return false;
+                const endMs = getTeamRoundEndMs(state.team, 'ksa', idx);
+                return Boolean(endMs && Date.now() >= endMs);
+            }
+            return false;
+        }
+
+        function isNineBoxTimeUp() {
+            const endMs = state.team?.timers?.nineBoxEndMs || null;
+            if (!endMs || TIMER_CONFIG.nineBoxMinutes <= 0) return false;
+            return Date.now() >= endMs;
+        }
+
+      
+// function renderTimerPill(id, text) {
+//     if (!text) return '';
+//     const isUp = text === 'Time Up';
+//     const isNotStarted = text === 'Not started';
+    
+//     // Parse minutes and seconds if it's a timer
+//     let isCritical = false;
+//     if (!isUp && !isNotStarted && text.includes(':')) {
+//         const [minutes, seconds] = text.split(':').map(Number);
+//         isCritical = minutes === 0 && seconds < 30;
+//     }
+    
+//     let bgColor, borderColor, textColor, extraClasses = '';
+//     if (isUp) {
+//         bgColor = 'bg-red-600';
+//         borderColor = 'border-red-800';
+//         textColor = 'text-white';
+//         extraClasses = 'animate-pulse ring-4 ring-red-300 ring-opacity-50';
+//     } else if (isNotStarted) {
+//         bgColor = 'bg-slate-200';
+//         borderColor = 'border-slate-400';
+//         textColor = 'text-slate-700';
+//     } else if (isCritical) {
+//         bgColor = 'bg-orange-500';
+//         borderColor = 'border-orange-700';
+//         textColor = 'text-white';
+//         extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
+//    } else {
+   
+//     bgColor = 'bg-gradient-to-r from-teal-600 to-cyan-600';
+// borderColor = 'border-teal-700';
+//         textColor = 'text-white';
+//         extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
+// }
+    
+//     return `<div class="px-8 py-4 rounded-3xl border-2 text-xl sm:text-2xl font-black uppercase tracking-widest text-center tabular-nums shadow-2xl transform hover:scale-110 transition-all duration-300 ${bgColor} ${borderColor} ${textColor} ${extraClasses}" 
+//             style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);">
+//         <span id="${id}" class="inline-block min-w-[140px] sm:min-w-[160px] drop-shadow-md">⏱️ ${text}</span>
+//     </div>`;
+// }
+
+
+        function getCompletedIds(list) {
+            if (!Array.isArray(list)) return [];
+            return list.map((entry) => (typeof entry === 'string' ? entry : entry.id));
+        }
+
+        function getActiveRoundIndex(completedIds, rounds) {
+            const roundList = Array.isArray(rounds) ? rounds : [];
+            for (let i = 0; i < roundList.length; i += 1) {
+                const round = roundList[i];
+                const allDone = round.ids.every((id) => completedIds.includes(id));
+                if (!allDone) return i;
+            }
+            return Math.max(0, roundList.length - 1);
+        }
+
+        function getNineBoxCells() {
+            return [
+                { key: 'low-performing-star', performance: 1, potential: 3, label: 'Low Performing Star', tone: 'bg-rose-400/80', text: 'text-white' },
+                { key: 'rising-star', performance: 2, potential: 3, label: 'Rising Star', tone: 'bg-teal-700/90', text: 'text-white' },
+                { key: 'star', performance: 3, potential: 3, label: 'Star', tone: 'bg-teal-700/90', text: 'text-white' },
+                { key: 'low-performing-talent', performance: 1, potential: 2, label: 'Low Performing Talent', tone: 'bg-rose-400/80', text: 'text-white' },
+                { key: 'performing-talent', performance: 2, potential: 2, label: 'Performing Talent', tone: 'bg-teal-700/90', text: 'text-white' },
+                { key: 'top-performing-talent', performance: 3, potential: 2, label: 'Top Performing Talent', tone: 'bg-teal-700/90', text: 'text-white' },
+                { key: 'low-performer', performance: 1, potential: 1, label: 'Low Performer', tone: 'bg-rose-400/80', text: 'text-white' },
+                { key: 'consistent-performer', performance: 2, potential: 1, label: 'Consistent Performer', tone: 'bg-orange-100', text: 'text-slate-700' },
+                { key: 'peak-performer', performance: 3, potential: 1, label: 'Peak Performer', tone: 'bg-orange-100', text: 'text-slate-700' }
+            ];
+        }
+
+        function renderPerformanceEvaluation() {
+            const p = state.selectedProfile;
+            const timeUp = isRoundTimeUp('performance');
+            const roundIndex = getCurrentPerformanceRoundIndex();
+            return `<div class="min-h-screen bg-slate-50 pb-32">
+                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <button onclick="navigate('PERFORMANCE_SELECTION')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <button onclick="toggleRubric('PERFORMANCE')" class="bg-red-600 text-white px-4 py-2 rounded-2xl font-black text-[10px] uppercase">Rubric</button>
+                    </div>
+                    <div class="flex justify-center">
+                        ${renderTimerPill('timer-performance-eval', getRoundTimerText('performance', roundIndex))}
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2 items-center">
+                        <div class="bg-yellow-100 px-4 py-2 rounded-2xl border border-yellow-200 font-black text-yellow-800 text-sm flex items-center gap-2">
+                            <img src="img/diamond-coin.png" alt="Diamond coin" class="w-5 h-5 coin-diamond" />
+                            <span>${state.team.goldCoins}</span>
+                        </div>
+                        <div class="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 font-black text-slate-700 text-sm flex items-center gap-2">
+                            <img src="img/golden-coin.png" alt="Gold coin" class="w-5 h-5" />
+                            <span>${state.team.silverCoins}</span>
+                        </div>
+                    </div>
+                </header>
+                <main class="p-4 sm:p-5 max-w-xl mx-auto space-y-8 animate-pop">
+                    <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden">
+                        <div class="bg-slate-800 text-white py-6 text-center font-black text-xl sm:text-2xl tracking-tight">${p.name}</div>
+                        <div class="p-8 space-y-8">
+                            <div class="flex justify-center"><img src="${p.avatar}" class="w-32 h-32 sm:w-44 sm:h-44 rounded-full border-[8px] sm:border-[12px] border-white shadow-2xl bg-slate-50 object-cover aspect-square" onerror="this.src='img/default-avatar.png'"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 sm:p-8 rounded-[3rem] shadow-2xl space-y-8">
+                        ${['performance', 'potential'].map(cat => `<div class="space-y-4">
+                            <p class="text-center font-black uppercase text-[10px] text-slate-500 tracking-widest">${cat === 'performance' ? 'Performance' : 'Potential'}</p>
+                            <div class="grid grid-cols-3 gap-2.5">${[1, 2, 3].map(v => `<button  onclick="handlePerformanceScore('${cat}', ${v}, this)" class="h-14 rounded-2xl font-black text-lg transition-all ${getPerformanceButtonStyles(cat, v)}">${v}</button>`).join('')}</div>
+                        </div>`).join('')}
+                        <button data-submit="performance" ${!state.isPerformanceSubmitted && timeUp ? 'disabled' : ''} onclick="${state.isPerformanceSubmitted ? "navigate('PERFORMANCE_SELECTION')" : "handleSubmitPerformance()"}" class="w-full py-5 rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-lg ${state.isPerformanceSubmitted ? 'bg-sky-600 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-sky-600 text-white'}">${state.isPerformanceSubmitted ? 'Back to List' : timeUp ? 'Time Up' : 'Submit Review'}</button>
+                    </div>
+                </main>
+            </div>`;
+        }
+
+        function renderNineBox() {
+            const timeUp = isNineBoxTimeUp();
+            const savedNineBox = state.team?.completedNineBox || null;
+            const placements = state.isNineBoxSubmitted && savedNineBox?.placementsCorrected ? savedNineBox.placementsCorrected : (state.nineBoxPlacements || {});
+            const feedback = state.isNineBoxSubmitted && savedNineBox?.feedback ? savedNineBox.feedback : {};
+            const gridCells = getNineBoxCells();
+            const labels = [...gridCells]
+                .sort((a, b) => (a.potential - b.potential) || (b.performance - a.performance))
+                .map(cell => ({ key: cell.key, label: cell.label }));
+            const placedKeys = Object.keys(placements);
+            const canSubmit = placedKeys.length === labels.length;
+
+            return `<div class="min-h-screen bg-slate-50 pb-32">
+                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <button onclick="navigate('LANDING')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <h1 class="font-black uppercase tracking-widest text-xs text-slate-400 hidden sm:block truncate">9-Box Grid</h1>
+                    </div>
+                    <div class="flex justify-center">
+                        ${renderTimerPill('timer-ninebox', getNineBoxTimerText())}
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2 items-center">
+                        <div class="bg-yellow-100 px-4 py-2 rounded-2xl border border-yellow-200 font-black text-yellow-800 text-sm flex items-center gap-2">
+                            <img src="img/diamond-coin.png" alt="Diamond coin" class="w-5 h-5 coin-diamond" />
+                            <span>${state.team.goldCoins}</span>
+                        </div>
+                        <div class="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 font-black text-slate-700 text-sm flex items-center gap-2">
+                            <img src="img/golden-coin.png" alt="Gold coin" class="w-5 h-5" />
+                            <span>${state.team.silverCoins}</span>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="p-4 sm:p-6 max-w-4xl mx-auto space-y-8 animate-pop">
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-lg font-black text-slate-800">Box Names</h2>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Drag into grid</p>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)">
+                            ${labels.map(item => {
+                                const isPlaced = Boolean(placements[item.key]);
+                                return `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" ondragstart="handleDragStart('${item.key}')" ondragend="handleDragEnd()" class="${isPlaced ? 'opacity-40' : ''} bg-white border-2 border-slate-200 rounded-xl p-3 text-center shadow-sm font-black text-xs text-slate-700">
+                                    ${item.label}
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </section>
+
+                    <section class="bg-white rounded-[2.5rem] p-4 sm:p-6 shadow-2xl overflow-x-auto sm:overflow-visible">
+                        <div class="min-w-[520px] sm:min-w-0">
+                        <div class="grid grid-cols-[36px,1fr] gap-3 items-stretch">
+                            <div class="flex flex-col items-center h-full">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 [writing-mode:vertical-rl] rotate-180 mb-2">Potential</span>
+                                <div class="flex-1 flex flex-col justify-between text-[10px] font-black uppercase text-slate-400">
+                                    <span>High</span>
+                                    <span>Moderate</span>
+                                    <span>Low</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                ${gridCells.map(cell => {
+                                    const occupantKey = Object.keys(placements).find(key => placements[key].performance === cell.performance && placements[key].potential === cell.potential);
+                                    const occupant = occupantKey ? labels.find(l => l.key === occupantKey) : null;
+                                    const status = occupantKey && feedback[occupantKey] ? feedback[occupantKey].status : null;
+                                    const statusClass = status === 'correct' ? 'ring-2 ring-green-500 bg-green-50' : status === 'wrong' ? 'ring-2 ring-red-500 bg-red-50' : '';
+                                    return `<div ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${cell.performance}, ${cell.potential})" class="${cell.tone} ${cell.text} rounded-2xl h-28 p-3 font-black text-xs flex flex-col justify-between border-2 border-white/60">
+                                        <div class="opacity-90"></div>
+                                        ${occupant ? `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" ondragstart="handleDragStart('${occupant.key}')" ondragend="handleDragEnd()" class="bg-white text-slate-800 rounded-xl px-3 py-2 text-[11px] font-black ${statusClass}">
+                                            ${occupant.label}
+                                        </div>` : '<div class="h-10"></div>'}
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-[36px,1fr] gap-3 mt-3 items-center">
+                            <div></div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[10px] font-black uppercase text-slate-400 px-1">
+                                    <span>Low</span><span>Moderate</span><span>High</span>
+                                </div>
+                                <div class="text-center text-xs font-black uppercase tracking-widest text-slate-400">Performance</div>
+                            </div>
+                        </div>
+                        </div>
+                    </section>
+
+                    <section class="pt-2">
+                        <button data-submit="nine" ${!state.isNineBoxSubmitted && (!canSubmit || timeUp) ? 'disabled' : ''} onclick="${state.isNineBoxSubmitted ? "navigate('LANDING')" : "handleSubmitNineBox()"}" class="w-full py-5 rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-lg ${state.isNineBoxSubmitted ? 'bg-slate-900 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : canSubmit ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">${state.isNineBoxSubmitted ? 'Back to Dashboard' : timeUp ? 'Time Up' : 'Submit Grid'}</button>
+                        ${!state.isNineBoxSubmitted ? `<p class="text-center text-[10px] font-bold text-slate-400 mt-2">${placedKeys.length} / ${labels.length} placed</p>` : ''}
+                    </section>
+                </main>
+            </div>`;
+        }
+
+        function renderEvaluation() {
+            const p = state.selectedProfile;
+            const timeUp = isRoundTimeUp('ksa');
+            const roundIndex = getCurrentKsaRoundIndex();
+            return `<div class="min-h-screen bg-slate-50 pb-32">
+                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <button onclick="navigate('PROFILE_SELECTION')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <button onclick="toggleRubric('KSA')" class="bg-red-600 text-white px-4 py-2 rounded-2xl font-black text-[10px] uppercase">Rubric</button>
+                    </div>
+                    <div class="flex justify-center">
+                        ${renderTimerPill('timer-ksa-eval', getRoundTimerText('ksa', roundIndex))}
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2 items-center">
+                        <div class="bg-yellow-100 px-4 py-2 rounded-2xl border border-yellow-200 font-black text-yellow-800 text-sm flex items-center gap-2">
+                            <img src="img/diamond-coin.png" alt="Diamond coin" class="w-5 h-5 coin-diamond" />
+                            <span>${state.team.goldCoins}</span>
+                        </div>
+                        <div class="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 font-black text-slate-700 text-sm flex items-center gap-2">
+                            <img src="img/golden-coin.png" alt="Gold coin" class="w-5 h-5" />
+                            <span>${state.team.silverCoins}</span>
+                        </div>
+                    </div>
+                </header>
+                <main class="p-4 sm:p-5 max-w-xl mx-auto space-y-8 animate-pop">
+                    <div class="bg-white rounded-[3rem] shadow-2xl overflow-hidden">
+                        <div class="bg-slate-800 text-white py-6 text-center font-black text-xl sm:text-2xl tracking-tight">${p.name}</div>
+                        <div class="p-8 space-y-8">
+                            <div class="flex justify-center"><img src="${p.avatar}" class="w-32 h-32 sm:w-44 sm:h-44 rounded-full border-[8px] sm:border-[12px] border-white shadow-2xl bg-slate-50 object-cover aspect-square" onerror="this.src='img/default-avatar.png'"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 sm:p-8 rounded-[3rem] shadow-2xl space-y-8">
+                        ${['k', 's', 'a'].map(cat => `<div class="space-y-4">
+                            <p class="text-center font-black uppercase text-[10px] text-slate-500 tracking-widest">${cat === 'k' ? 'Knowledge' : cat === 's' ? 'Skills' : 'Attitude'}</p>
+                            <div class="grid grid-cols-5 max-[420px]:grid-cols-3 gap-2.5">${[1, 2, 3, 4, 5].map(v => `<button onclick="handleScore('${cat}', ${v}, this)" class="h-14 rounded-2xl font-black text-lg transition-all ${getButtonStyles(cat, v)}">${v}</button>`).join('')}</div>
+                        </div>`).join('')}
+                        <button data-submit="ksa" ${!state.isSubmitted && timeUp ? 'disabled' : ''} onclick="${state.isSubmitted ? "navigate('PROFILE_SELECTION')" : "handleSubmitEvaluation()"}" class="w-full py-5 rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-lg ${state.isSubmitted ? 'bg-sky-600 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-sky-600 text-white'}">${state.isSubmitted ? 'Back to List' : timeUp ? 'Time Up' : 'Submit Review'}</button>
+                    </div>
+                </main>
+            </div>`;
+        }
+
+        function getButtonStyles(cat, val) {
+            const userVal = state.evaluations[cat];
+            const correctVal = state.selectedProfile.answers[cat];
+            if (!state.isSubmitted && isRoundTimeUp('ksa')) return "bg-slate-50 text-slate-300 opacity-40 border border-slate-100 cursor-not-allowed";
+            if (state.isSubmitted) {
+                if (val === correctVal) return "relative z-10 bg-green-500 text-white border-2 border-green-700 shadow-lg ring-4 ring-green-100";
+                if (val === userVal && val !== correctVal) return "relative z-10 bg-red-50 text-red-700 border-2 border-dotted border-red-600 shadow-inner ring-4 ring-red-50";
+                return "bg-slate-50 text-slate-300 opacity-40 border border-slate-100 cursor-not-allowed";
+            }
+            if (userVal === val) return "bg-sky-600 text-white shadow-2xl scale-110 ring-4 ring-sky-100 z-10";
+            return "bg-white text-slate-500 border border-slate-200 active:bg-sky-50";
+        }
+
+        function getPerformanceButtonStyles(cat, val) {
+            const userVal = state.performanceEvaluations[cat];
+            const correctVal = state.selectedProfile.performancePotential[cat];
+            if (!state.isPerformanceSubmitted && isRoundTimeUp('performance')) return "bg-slate-50 text-slate-300 opacity-40 border border-slate-100 cursor-not-allowed";
+            if (state.isPerformanceSubmitted) {
+                if (val === correctVal) return "relative z-10 bg-green-500 text-white border-2 border-green-700 shadow-lg ring-4 ring-green-100";
+                if (val === userVal && val !== correctVal) return "relative z-10 bg-red-50 text-red-700 border-2 border-dotted border-red-600 shadow-inner ring-4 ring-red-50";
+                return "bg-slate-50 text-slate-300 opacity-40 border border-slate-100 cursor-not-allowed";
+            }
+            if (userVal === val) return "bg-sky-600 text-white shadow-2xl scale-110 ring-4 ring-sky-100 z-10";
+            return "bg-white text-slate-500 border border-slate-200 active:bg-sky-50";
+        }
+
+        function renderLeaderboard() {
+            const participants = state.registry.filter(t => t.role === 'PARTICIPANT');
+            const rankings = participants.sort((a, b) => b.goldCoins - a.goldCoins || b.silverCoins - a.silverCoins).map((t, idx) => ({ ...t, rank: idx + 1, you: state.team && t.name === state.team.name }));
+            return `<div class="min-h-screen bg-slate-900 text-white pb-20">
+                <header class="p-4 flex items-center justify-between border-b border-slate-800">
+                    <button onclick="navigate('LANDING')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                    <h1 class="font-black uppercase tracking-[0.3em] text-[10px] text-slate-500">Live Ranking</h1>
+                    <div id="sync-indicator"></div>
+                </header>
+                <main class="p-4 sm:p-6 max-w-xl mx-auto space-y-6">
+                    <div class="text-center py-10 sm:py-12"><div class="mb-4 coin-bounce flex justify-center"><img src="img/diamond-coin.png" alt="Diamond coin" class="w-12 h-12 sm:w-16 sm:h-16 coin-diamond" /></div><h2 class="text-4xl sm:text-5xl font-black italic tracking-tighter uppercase leading-none">Leaderboard</h2></div>
+                    <div class="space-y-4">
+                        ${rankings.map(r => `<div class="flex flex-wrap items-center gap-4 sm:gap-5 p-4 sm:p-6 rounded-[2.5rem] border-2 ${r.you ? 'bg-sky-600 border-sky-400 shadow-xl' : 'bg-slate-800/40 border-slate-700'}">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-black text-lg sm:text-xl ${r.rank === 1 ? 'bg-yellow-400 text-yellow-900 shadow-xl' : 'bg-slate-700 text-slate-400'}">${r.rank}</div>
+                                <div class="flex-1 font-black text-lg sm:text-xl tracking-tight">${r.name}${r.you ? ' (YOU)' : ''}</div>
+                                <div class="flex gap-4">
+                                    <div class="text-center flex flex-col items-center gap-1">
+                                        <img src="img/diamond-coin.png" alt="Diamond coin" class="w-5 h-5 coin-diamond" />
+                                        <p class="font-black text-yellow-400 text-lg">${r.goldCoins}</p>
+                                    </div>
+                                    <div class="text-center flex flex-col items-center gap-1">
+                                        <img src="img/golden-coin.png" alt="Gold coin" class="w-5 h-5" />
+                                        <p class="font-black text-slate-300 text-lg">${r.silverCoins}</p>
+                                    </div>
+                                </div>
+                            </div>`).join('')}
+                    </div>
+                </main>
+            </div>`;
+        }
+
+        function renderModal() {
+            const container = document.getElementById('modal-container');
+            if (!state.isRubricOpen && !state.profilePreviewId && !state.pendingTimerStart) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden');
+
+            if (state.pendingTimerStart) {
+                const pending = state.pendingTimerStart;
+                const isNine = pending.activity === 'ninebox';
+                const roundLabel = isNine
+                    ? 'Activity 2: 9-Box Grid'
+                    : pending.activity === 'performance'
+                        ? `Activity 1: ${PERFORMANCE_ROUNDS[pending.roundIndex]?.label || 'Round'}`
+                        : `Activity 3: ${KSA_ROUNDS[pending.roundIndex]?.label || 'Round'}`;
+                const minutes = isNine ? TIMER_CONFIG.nineBoxMinutes : getRoundDurationMinutes(pending.activity, pending.roundIndex);
+                const alreadyStarted = isNine
+                    ? Boolean(state.team?.timers?.nineBoxEndMs)
+                    : Boolean(getTeamRoundEndMs(state.team, pending.activity, pending.roundIndex));
+                const msg = minutes > 0
+                    ? (alreadyStarted ? `This timer is already running. Continue?` : `This round is timed (${minutes} min). Start the timer now?`)
+                    : `This round has no timer. Continue?`;
+                const coinRules = isNine
+                    ? `<div class="p-4 rounded-2xl border bg-slate-50 space-y-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Coin System</div>
+                        <div class="text-sm font-semibold text-slate-700">+1 Gold per correct placement</div>
+                    </div>`
+                    : pending.activity === 'performance'
+                        ? `<div class="p-4 rounded-2xl border bg-slate-50 space-y-2">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Coin System</div>
+                            <div class="text-sm font-semibold text-slate-700">Performance correct: +1 Gold</div>
+                            <div class="text-sm font-semibold text-slate-700">Potential correct: +2 Gold</div>
+                            <div class="text-sm font-semibold text-slate-700">Max per profile: 3 Gold</div>
+                        </div>`
+                        : `<div class="p-4 rounded-2xl border bg-slate-50 space-y-2">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Coin System</div>
+                            <div class="text-sm font-semibold text-slate-700">+1 Gold per correct answer</div>
+                            <div class="text-sm font-semibold text-slate-700">3/3 correct: +1 Diamond bonus</div>
+                        </div>`;
+                container.innerHTML = `<div class="bg-white rounded-[3rem] w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-pop border-8 border-slate-50">
+                    <div class="p-6 border-b bg-slate-50 flex items-center justify-between">
+                        <h2 class="font-black text-slate-800 uppercase tracking-tight text-lg">Start Timer</h2>
+                        <button onclick="cancelTimerStart()" class="p-2 text-slate-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">${roundLabel}</div>
+                        <p class="text-sm font-semibold text-slate-600">${msg}</p>
+                        ${minutes > 0 ? `<div class="p-4 rounded-2xl border bg-slate-50">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Duration</span>
+                                <span class="font-black text-slate-800">${minutes} min</span>
+                            </div>
+                        </div>` : ''}
+                        ${coinRules}
+                    </div>
+                    <div class="p-6 border-t bg-slate-50 grid grid-cols-2 gap-3">
+                        <button onclick="cancelTimerStart()" class="py-4 bg-white border-2 border-slate-200 rounded-[2rem] font-black uppercase tracking-widest text-slate-700 active:scale-95 transition-all">Cancel</button>
+                        <button onclick="confirmTimerStart()" class="py-4 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">${alreadyStarted ? 'Continue' : 'Start'}</button>
+                    </div>
+                </div>`;
+                return;
+            }
+            if (state.profilePreviewId) {
+                const p = PROFILES.find(profile => profile.id === state.profilePreviewId);
+                if (!p) { container.classList.add('hidden'); return; }
+                container.innerHTML = `<div class="bg-white rounded-[3rem] w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-pop border-8 border-slate-50">
+                    <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                        <h2 class="font-black text-slate-800 uppercase tracking-tight text-lg">${p.name}</h2>
+                        <button onclick="closeProfilePreview()" class="p-2 text-slate-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    </div>
+                    <div class="p-6 overflow-y-auto space-y-6">
+                        <div class="flex justify-center">
+                            <img src="${p.avatar}" class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover" onerror="this.src='img/default-avatar.png'" />
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                            ${state.view === 'NINE_BOX' ? '' : `<div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Activity 3 (KSA)</div>
+                            <div class="flex gap-2 text-xs font-black text-slate-700">
+                                <span class="px-2 py-1 bg-white rounded-lg border">K: ${p.answers.k}</span>
+                                <span class="px-2 py-1 bg-white rounded-lg border">S: ${p.answers.s}</span>
+                                <span class="px-2 py-1 bg-white rounded-lg border">A: ${p.answers.a}</span>
+                            </div>`}
+                            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Activity 1 (Performance/Potential)</div>
+                            <div class="flex gap-2 text-xs font-black text-slate-700">
+                                <span class="px-2 py-1 bg-white rounded-lg border">Performance: ${p.performancePotential.performance}</span>
+                                <span class="px-2 py-1 bg-white rounded-lg border">Potential: ${p.performancePotential.potential}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t bg-slate-50"><button onclick="closeProfilePreview()" class="w-full py-4 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">Close</button></div>
+                </div>`;
+                return;
+            }
+
+            const rubricData = state.rubricType === 'PERFORMANCE' ? PERFORMANCE_RUBRIC_DATA : RUBRIC_DATA;
+            const rubricScores = state.rubricType === 'PERFORMANCE' ? [1, 2, 3] : [1, 2, 3, 4, 5];
+            container.innerHTML = `<div class="bg-white rounded-[3rem] w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-pop border-8 border-slate-50">
+                <div class="p-6 sm:p-8 border-b flex justify-between items-center bg-slate-50"><h2 class="font-black text-slate-800 uppercase tracking-tight text-xl">Expert Rubric</h2><button onclick="toggleRubric()" class="p-2 text-slate-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>
+                <div class="p-6 overflow-y-auto space-y-8">${rubricData.map(c => `<div class="space-y-4"><h3 class="text-sky-600 font-black uppercase text-xs flex items-center gap-2"><span class="w-2.5 h-2.5 bg-sky-600 rounded-full"></span>${c.name}</h3><div class="grid gap-2.5">${rubricScores.map(s => `<div class="flex items-start gap-4 p-4 rounded-3xl bg-slate-50 border border-slate-100"><div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-black text-sm shrink-0 shadow-sm">${s}</div><p class="text-xs font-semibold text-slate-600 leading-relaxed">${c.levels[s]}</p></div>`).join('')}</div></div>`).join('')}
+                ${state.rubricType === 'PERFORMANCE' ? `
+                    <div class="space-y-4">
+                        <h3 class="text-sky-600 font-black uppercase text-xs flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 bg-sky-600 rounded-full"></span>Definitions
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="p-4 rounded-3xl bg-slate-50 border border-slate-100">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Aspiration and Organizational Commitment</p>
+                                <p class="text-xs font-semibold text-slate-600 leading-relaxed mt-2">The desire and intention to take on greater responsibility AND<br/>The commitment to grow with the organization in a way that contribute to your team and organization success.</p>
+                            </div>
+                            <div class="p-4 rounded-3xl bg-slate-50 border border-slate-100">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Capacity</p>
+                                <p class="text-xs font-semibold text-slate-600 leading-relaxed mt-2">The demonstrated ability to operate effectively at broader scope and higher complexity in the upcoming career role</p>
+                            </div>
+                            <div class="p-4 rounded-3xl bg-slate-50 border border-slate-100">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Learning Agility</p>
+                                <p class="text-xs font-semibold text-slate-600 leading-relaxed mt-2">The ability and willingness to Learn from experience and feedback AND<br/>Apply independently and effectively in new, unfamiliar, or first-time situations.</p>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+                </div>
+                <div class="p-6 sm:p-8 border-t bg-slate-50"><button onclick="toggleRubric()" class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">Understood</button></div>
+            </div>`;
+        }
+
+        function renderCoinPopup() {
+            const container = document.getElementById('coin-modal');
+            if (!container) return;
+            if (!state.showCoinPopup) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden');
+            const isGold = state.coinPopupType === 'gold';
+            const isSilver = state.coinPopupType === 'silver';
+            const isMulti = state.coinPopupType === 'multi';
+            const title = state.coinPopupDetails.title || (isMulti ? 'Results' : isGold ? 'Diamond Coin!' : isSilver ? 'Gold Coin!' : 'No Coin');
+            const message = isMulti
+                ? (state.coinPopupDetails.message || 'Coins earned')
+                : isGold
+                    ? (state.coinPopupDetails.message || 'Coins earned: 1 Diamond')
+                    : isSilver
+                        ? (state.coinPopupDetails.message || 'Coins earned: 1 Gold')
+                        : (state.coinPopupDetails.message || 'Coins earned: 0');
+            const coinImg = isGold ? 'img/diamond-coin.png' : isSilver ? 'img/golden-coin.png' : '';
+            container.innerHTML = `<div class="bg-white rounded-[3rem] w-full max-w-sm overflow-hidden flex flex-col shadow-2xl animate-pop border-8 border-slate-50">
+                <div class="p-5 sm:p-6 border-b bg-slate-50 text-center">
+                    <h2 class="font-black text-slate-800 uppercase tracking-tight text-xl">${title}</h2>
+                </div>
+                <div class="p-6 sm:p-8 flex flex-col items-center gap-4 text-center">
+                    ${isMulti ? `<div class="flex items-center gap-6">
+                        <div class="flex flex-col items-center gap-2">
+                            <img src="img/diamond-coin.png" alt="Diamond coin" class="w-14 h-14 coin-diamond" />
+                            <span class="font-black text-yellow-600 text-lg">${state.coinPopupDetails.gold}</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <img src="img/golden-coin.png" alt="Gold coin" class="w-14 h-14" />
+                            <span class="font-black text-slate-500 text-lg">${state.coinPopupDetails.silver}</span>
+                        </div>
+                    </div>` : coinImg ? `<img src="${coinImg}" alt="${title}" class="w-20 h-20 coin-bounce" />` : '<div class="w-20 h-20 rounded-full bg-slate-100"></div>'}
+                    ${message ? `<p class="text-sm font-semibold text-slate-600">${message}</p>` : ''}
+                </div>
+                <div class="p-5 sm:p-6 border-t bg-slate-50"><button onclick="closeCoinPopup()" class="w-full py-4 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">Continue</button></div>
+            </div>`;
+        }
+
+        window.setLoginRole = (role) => { state.loginRole = role; render(); };
+        window.handleLogin = async () => {
+            if (state.loginRole === 'ADMIN') {
+                const user = document.getElementById('adminUser').value;
+                const pass = document.getElementById('adminPass').value;
+                if (user === '@unitedadmin' && pass === '#uniTed25') {
+                    state.team = normalizeTeam({ name: "Administrator", role: 'ADMIN', goldCoins: 0, silverCoins: 0, completedProfiles: [], completedPerformanceProfiles: [], completedNineBox: null });
+                    navigate('LANDING');
+                } else alert("Invalid Admin Credentials.");
+                return;
+            }
+            const name = document.getElementById('teamInput').value.trim();
+            if (!name) return alert("Enter Team Name.");
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = "Syncing..."; btn.disabled = true;
+            try {
+                const reg = await fetchRegistry();
+                const existing = reg.find(t => t.name.toLowerCase() === name.toLowerCase());
+                state.team = normalizeTeam(existing || { name, role: 'PARTICIPANT', goldCoins: 0, silverCoins: 0, completedProfiles: [], completedPerformanceProfiles: [], completedNineBox: null });
+                save(); navigate('LANDING');
+            } catch (err) {
+                alert("Cloud connection failed. Check your internet or API settings.");
+                btn.innerHTML = "Enter"; btn.disabled = false;
+            }
+        };
+
+        window.handleLogout = () => { localStorage.removeItem('team_data'); state.team = null; navigate('LOGIN'); };
+
+
+         window.handleScore = (cat, val, btn) => {
+  if (state.isSubmitted) return;
+  if (isRoundTimeUp('ksa')) return alert('Time is up for this round.');
+
+  state.evaluations[cat] = val;
+
+  // scope to this K / S / A grid only
+  const container = btn.closest('.grid');
+
+  container.querySelectorAll('button').forEach(b => {
+    // remove active styles
+    b.classList.remove(
+      'bg-sky-600',
+      'text-white',
+      'shadow-2xl',
+      'scale-110',
+      'ring-4',
+      'ring-sky-100',
+      'z-10'
+    );
+
+    // restore inactive styles
+    b.classList.add(
+      'bg-white',
+      'text-slate-500',
+      'border',
+      'border-slate-200'
+    );
+  });
+
+  // remove inactive styles from clicked button
+  btn.classList.remove(
+    'bg-white',
+    'text-slate-500',
+    'border',
+    'border-slate-200'
+  );
+
+  // apply active styles
+  btn.classList.add(
+    'bg-sky-600',
+    'text-white',
+    'shadow-2xl',
+    'scale-110',
+    'ring-4',
+    'ring-sky-100',
+    'z-10'
+  );
+};
+
+        window.handlePerformanceScore = (cat, val, btn) => {
+  if (state.isPerformanceSubmitted) return;
+  if (isRoundTimeUp('performance')) return alert('Time is up for this round.');
+
+  state.performanceEvaluations[cat] = val;
+
+  const container = btn.closest('.grid');
+
+  container.querySelectorAll('button').forEach(b => {
+    b.classList.remove(
+      'bg-sky-600',
+      'text-white',
+      'shadow-2xl',
+      'scale-110',
+      'ring-4',
+      'ring-sky-100',
+      'z-10'
+    );
+
+    // 👈 restore inactive styles
+    b.classList.add(
+      'bg-white',
+      'text-slate-500',
+      'border',
+      'border-slate-200'
+    );
+  });
+
+  // ❗ remove inactive styles from clicked button
+  btn.classList.remove(
+    'bg-white',
+    'text-slate-500',
+    'border',
+    'border-slate-200'
+  );
+
+  // ✅ add active styles
+  btn.classList.add(
+    'bg-sky-600',
+    'text-white',
+    'shadow-2xl',
+    'scale-110',
+    'ring-4',
+    'ring-sky-100',
+    'z-10'
+  );
+};
+
+        window.toggleRubric = (type) => { state.profilePreviewId = null; state.rubricType = type || state.rubricType || 'KSA'; state.isRubricOpen = !state.isRubricOpen; render(); };
+        window.closeCoinPopup = () => { state.showCoinPopup = false; render(); };
+        window.openProfilePreview = (profileId) => { state.isRubricOpen = false; state.profilePreviewId = profileId; render(); };
+        window.closeProfilePreview = () => { state.profilePreviewId = null; render(); };
+        window.openRound = (activity, index) => {
+            const minutes = getRoundDurationMinutes(activity, index);
+            if (minutes > 0) {
+                state.pendingTimerStart = { activity, roundIndex: index };
+                state.isRubricOpen = false;
+                state.profilePreviewId = null;
+                render();
+                return;
+            }
+            if (activity === 'performance') {
+                state.performanceRoundIndex = index;
+                navigate('PERFORMANCE_SELECTION');
+                return;
+            }
+            if (activity === 'ksa') {
+                state.ksaRoundIndex = index;
+                navigate('PROFILE_SELECTION');
+            }
+        };
+
+        window.openNineBox = () => {
+            if (!state.team || state.team.role !== 'PARTICIPANT') return navigate('NINE_BOX');
+            if (TIMER_CONFIG.nineBoxMinutes > 0 && !state.team?.timers?.nineBoxEndMs) {
+                state.pendingTimerStart = { activity: 'ninebox' };
+                state.isRubricOpen = false;
+                state.profilePreviewId = null;
+                render();
+                return;
+            }
+            navigate('NINE_BOX');
+        };
+
+        window.cancelTimerStart = () => { state.pendingTimerStart = null; render(); };
+        window.confirmTimerStart = () => {
+            const pending = state.pendingTimerStart;
+            if (!pending) return;
+            state.pendingTimerStart = null;
+            if (pending.activity === 'ninebox') {
+                ensureNineBoxTimer();
+                navigate('NINE_BOX');
+                return;
+            }
+            if (pending.activity === 'performance') {
+                state.performanceRoundIndex = pending.roundIndex;
+                ensureRoundTimer('performance', pending.roundIndex);
+                navigate('PERFORMANCE_SELECTION');
+                return;
+            }
+            if (pending.activity === 'ksa') {
+                state.ksaRoundIndex = pending.roundIndex;
+                ensureRoundTimer('ksa', pending.roundIndex);
+                navigate('PROFILE_SELECTION');
+            }
+        };
+
+        window.handleDragStart = (profileId) => {
+            if (state.isNineBoxSubmitted) return;
+            if (isNineBoxTimeUp()) return alert('Time is up for this activity.');
+            state.draggingProfileId = profileId;
+        };
+        window.handleDragEnd = () => { state.draggingProfileId = null; };
+        window.handleDragOver = (event) => { event.preventDefault(); };
+        window.handleDropToPool = (event) => {
+            event.preventDefault();
+            if (state.isNineBoxSubmitted) return;
+            if (isNineBoxTimeUp()) return alert('Time is up for this activity.');
+            const key = state.draggingProfileId;
+            if (key && state.nineBoxPlacements[key]) {
+                delete state.nineBoxPlacements[key];
+                render();
+            }
+        };
+        window.handleDrop = (event, performance, potential) => {
+            event.preventDefault();
+            if (state.isNineBoxSubmitted) return;
+            if (isNineBoxTimeUp()) return alert('Time is up for this activity.');
+            const key = state.draggingProfileId;
+            if (!key) return;
+            const existing = Object.keys(state.nineBoxPlacements).find(id => state.nineBoxPlacements[id].performance === performance && state.nineBoxPlacements[id].potential === potential);
+            if (existing && existing !== key) delete state.nineBoxPlacements[existing];
+            state.nineBoxPlacements[key] = { performance, potential };
+            render();
+        };
+        window.handleSubmitEvaluation = () => {
+            if (isRoundTimeUp('ksa')) return alert('Time is up for this round.');
+            const { k, s, a } = state.evaluations;
+            if (k === null || s === null || a === null) return alert("Score all 3.");
+            const p = state.selectedProfile;
+            console.log(p)
+            // Prevent multiple evaluations for the same profile
+            if (state.team.completedProfiles.some(cp => (typeof cp === 'string' ? cp === p.id : cp.id === p.id))) {
+                alert("You have already evaluated this profile. You cannot evaluate it again.");
+                state.isSubmitted = true;
+                render();
+                return;
+            }
+            const correctCount = [k === p.answers.k, s === p.answers.s, a === p.answers.a].filter(Boolean).length;
+            const silverEarned = correctCount;
+            const goldEarned = correctCount === 3 ? 1 : 0;
+                if  (p.id != "fahd"){
+                console.log(p.id)
+            state.team.silverCoins += silverEarned;
+            state.team.goldCoins += goldEarned;
+                }
+            const sub = { id: p.id, k, s, a };
+            state.team.completedProfiles.push(sub);
+            state.isSubmitted = true;
+             if  (p.id != "fahd"){
+            state.result = correctCount === 3 ? { type: 'gold', msg: "Perfect!" } : correctCount > 0 ? { type: 'silver', msg: `${correctCount}/3 Correct.` } : { type: 'none', msg: "No points." };
+             }
+            state.coinPopupType = 'multi';
+            state.coinPopupDetails = {
+                title: 'Activity 3 Results',
+                gold: goldEarned,
+                silver: silverEarned,
+                message: `Diamond: ${goldEarned} • Gold: ${silverEarned}`
+            };
+            state.showCoinPopup = true;
+            save(); render();
+        };
+
+        window.handleSubmitPerformance = () => {
+            if (isRoundTimeUp('performance')) return alert('Time is up for this round.');
+            const { performance, potential } = state.performanceEvaluations;
+            if (performance === null || potential === null) return alert("Score both fields.");
+            const p = state.selectedProfile;
+            console.log(p)
+
+            if (state.team.completedPerformanceProfiles.some(cp => (typeof cp === 'string' ? cp === p.id : cp.id === p.id))) {
+                alert("You have already evaluated this profile. You cannot evaluate it again.");
+                state.isPerformanceSubmitted = true;
+                render();
+                return;
+            }
+            const performanceCorrect = performance === p.performancePotential.performance;
+            const potentialCorrect = potential === p.performancePotential.potential;
+            const silverEarned = (performanceCorrect ? 1 : 0) + (potentialCorrect ? 2 : 0);
+              if  (p.id != "fahd"){
+                console.log(p.id)
+            state.team.silverCoins += silverEarned;
+            }
+            const sub = { id: p.id, performance, potential };
+            state.team.completedPerformanceProfiles.push(sub);
+            state.isPerformanceSubmitted = true;
+            state.performanceResult = (performanceCorrect && potentialCorrect  ) ? { type: 'silver', msg: "3/3 Points." } : performanceCorrect || potentialCorrect ? { type: 'silver', msg: `${silverEarned}/3 Points.` } : { type: 'none', msg: "No points." };
+            state.coinPopupType = 'multi';
+            state.coinPopupDetails = {
+                title: 'Activity 1 Results',
+                gold: 0,
+                silver: silverEarned,
+                message: `Diamond: 0 • Gold: ${silverEarned}`
+            };
+            state.showCoinPopup = true;
+            save(); render();
+        };
+
+        window.handleSubmitNineBox = () => {
+            if (state.isNineBoxSubmitted) return;
+            if (isNineBoxTimeUp()) return alert('Time is up for this activity.');
+            const cells = getNineBoxCells();
+            const labels = cells.map(cell => cell.key);
+            const placedKeys = Object.keys(state.nineBoxPlacements || {});
+            if (placedKeys.length !== labels.length) return;
+            const correctMap = cells.reduce((map, cell) => {
+                map[cell.key] = { performance: cell.performance, potential: cell.potential };
+                return map;
+            }, {});
+            const feedback = {};
+            const placementsCorrected = {};
+            const correctCount = labels.reduce((count, key) => {
+                const placement = state.nineBoxPlacements[key];
+                const correct = correctMap[key];
+                const isCorrect = placement && placement.performance === correct.performance && placement.potential === correct.potential;
+                feedback[key] = { status: isCorrect ? 'correct' : 'wrong' };
+                placementsCorrected[key] = { performance: correct.performance, potential: correct.potential };
+                return count + (isCorrect ? 1 : 0);
+            }, 0);
+
+            const goldEarned = 0;
+            const silverEarned = correctCount;
+
+            state.team.silverCoins += silverEarned;
+            state.team.completedNineBox = { mode: 'labels', placements: state.nineBoxPlacements, placementsCorrected, feedback, correctCount, goldEarned, silverEarned };
+            state.isNineBoxSubmitted = true;
+            state.coinPopupType = 'multi';
+            state.coinPopupDetails = {
+                title: 'Activity 2 Results',
+                gold: goldEarned,
+                silver: silverEarned,
+                message: `Diamond: ${goldEarned} • Gold: ${silverEarned}`
+            };
+            state.showCoinPopup = true;
+            save();
+            render();
+        };
+
+        window.toggleSessionConfig = (key) => { state.config[key] = !state.config[key]; pushSessionConfig(); render(); };
+        window.toggleProfileStatus = (pid) => {
+            const index = state.config.activeProfiles.indexOf(pid);
+            if (index === -1) state.config.activeProfiles.push(pid); else state.config.activeProfiles.splice(index, 1);
+            pushSessionConfig(); render();
+        };
+        async function pushSessionConfig() { await apiCall({ action: 'upsert', team: { name: '__SESSION_CONFIG__', role: 'SYSTEM', goldCoins: 0, silverCoins: 0, completedProfiles: [JSON.stringify(state.config)] } }); }
+        
+        window.adminAddTeam = async () => {
+            const name = prompt("Enter new Team Name:"); if (!name) return;
+            const newTeam = { name, role: 'PARTICIPANT', goldCoins: 0, silverCoins: 0, completedProfiles: [], completedPerformanceProfiles: [], completedNineBox: null };
+            if (await pushTeamUpdate(newTeam)) fetchRegistry().then(() => render());
+        };
+        window.adminEditTeam = async (oldName) => {
+            const newName = prompt("Enter new name for " + oldName, oldName);
+            if (!newName || newName === oldName) return;
+            if (await apiCall({ action: 'rename', team: { name: oldName, newName: newName } })) fetchRegistry().then(() => render());
+        };
+        window.adminDeleteTeam = async (name) => {
+            if (!confirm(`Permanently delete team "${name}"?`)) return;
+            if (await apiCall({ action: 'delete', team: { name: name } })) fetchRegistry().then(() => render());
+        };
+        window.adminAdjustCoins = async (name, goldDelta, silverDelta) => {
+            if (!name) return;
+            await apiCall({ action: 'adjustCoins', team: { name: name, goldDelta: goldDelta, silverDelta: silverDelta } });
+        };
+
+        function extendTimerEndMs(existingEndMs, addMs) {
+            const base = Math.max(typeof existingEndMs === 'number' ? existingEndMs : 0, Date.now());
+            return base + addMs;
+        }
+
+        window.setAdminTimerExt = (field, value) => {
+            if (!state.adminTimerExt) state.adminTimerExt = { teamName: 'ALL', target: 'performance', roundIndex: 1 };
+            if (field === 'roundIndex') state.adminTimerExt.roundIndex = Number(value);
+            else state.adminTimerExt[field] = value;
+
+            // Default sensible round when switching activities
+            if (field === 'target') {
+                if (value === 'ninebox') {
+                    state.adminTimerExt.roundIndex = 0;
+                } else {
+                    if (![0, 1, 2].includes(Number(state.adminTimerExt.roundIndex))) state.adminTimerExt.roundIndex = 1;
+                }
+            }
+            render();
+        };
+
+        async function applyExtensionToTeam(team, spec) {
+            const updated = normalizeTeam(JSON.parse(JSON.stringify(team)));
+            if (spec.target === 'ninebox') {
+                updated.timers.nineBoxEndMs = extendTimerEndMs(updated.timers.nineBoxEndMs, 60 * 1000);
+            } else {
+                const roundIndex = Number(spec.roundIndex);
+                const existing = getTeamRoundEndMs(updated, spec.target, roundIndex);
+                const next = extendTimerEndMs(existing, 60 * 1000);
+                setTeamRoundEndMs(updated, spec.target, roundIndex, next);
+            }
+            upsertTimerMeta(updated);
+            return pushTeamUpdate(updated);
+        }
+
+        window.adminApplyTimerExtension = async () => {
+            // Ensure we have a fresh registry; otherwise ALL teams can be empty and nothing happens.
+            if (!Array.isArray(state.registry) || state.registry.length === 0) {
+                await fetchRegistry(true);
+            }
+
+            const spec = state.adminTimerExt || { teamName: 'ALL', target: 'performance', roundIndex: 1 };
+            const teamName = spec.teamName || 'ALL';
+            const target = spec.target || 'performance';
+            const roundIndex = Number(spec.roundIndex);
+
+            const normalizedSpec = { teamName, target, roundIndex };
+
+            if (teamName === 'ALL') {
+                const teams = state.registry.filter(t => t.role === 'PARTICIPANT');
+                for (const t of teams) {
+                    await applyExtensionToTeam(t, normalizedSpec);
+                }
+                fetchRegistry().then(() => render());
+                return;
+            }
+
+            const team = state.registry.find(t => t.role === 'PARTICIPANT' && t.name === teamName);
+            if (!team) return;
+            if (await applyExtensionToTeam(team, normalizedSpec)) fetchRegistry().then(() => render());
+        };
+
+        window.adminUpdate = () => {
+            fetchRegistry(false);
+        };
+
+        // if (state.team) { navigate('LANDING'); fetchRegistry(); } else navigate('LOGIN');
+        if (state.team) { 
+    navigate('LANDING'); 
+} else navigate('LOGIN');
+    </script>
+    <!-- <script type="module" src="/index.tsx"></script> -->
+</body>
+</html>
