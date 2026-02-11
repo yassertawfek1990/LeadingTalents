@@ -6,6 +6,23 @@
     <title>Leading Talents</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        .touch-dragging {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: none;
+}
+
+.drop-zone-highlight {
+    background-color: rgba(14, 165, 233, 0.2) !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.5);
+}
+
+.nine-box-container * {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         html { height: 100%; }
         *, *::before, *::after { box-sizing: border-box; }
@@ -451,7 +468,15 @@
             render();
             window.scrollTo(0, 0);
         }
-
+let touchDragState = {
+    isDragging: false,
+    draggedElement: null,
+    draggedKey: null,
+    touchStartX: 0,
+    touchStartY: 0,
+    clone: null,
+    dropTarget: null
+};
         function render() {
                 console.log('RENDER CALLED:', state.view); // ← Add this
 
@@ -474,6 +499,9 @@
             renderSyncStatus();
             ensureTimerTick();
             ensureRegistryPolling();
+            if (state.view === 'NINE_BOX') {
+    setTimeout(() => initTouchDragAndDrop(), 50);
+}
         }
 
         function ensureRegistryPolling() {
@@ -1349,6 +1377,185 @@ function renderTimerPill(id, text) {
             </div>`;
         }
 
+function initTouchDragAndDrop() {
+    // This will be called after render to attach touch handlers
+    const draggables = document.querySelectorAll('[draggable="true"]');
+    const dropZones = document.querySelectorAll('[ondrop]');
+    
+    draggables.forEach(elem => {
+        // Remove existing listeners if any
+        elem.removeEventListener('touchstart', handleTouchStart);
+        elem.removeEventListener('touchmove', handleTouchMove);
+        elem.removeEventListener('touchend', handleTouchEnd);
+        
+        // Add new listeners
+        elem.addEventListener('touchstart', handleTouchStart, { passive: false });
+        elem.addEventListener('touchmove', handleTouchMove, { passive: false });
+        elem.addEventListener('touchend', handleTouchEnd, { passive: false });
+    });
+    
+    dropZones.forEach(zone => {
+        zone.removeEventListener('touchmove', handleDropZoneTouchMove);
+        zone.addEventListener('touchmove', handleDropZoneTouchMove, { passive: false });
+    });
+}
+
+function handleTouchStart(e) {
+    if (state.isNineBoxSubmitted || isNineBoxTimeUp()) {
+        e.preventDefault();
+        return;
+    }
+    
+    const target = e.currentTarget;
+    const key = extractProfileKey(target);
+    
+    if (!key) return;
+    
+    e.preventDefault();
+    
+    touchDragState.isDragging = true;
+    touchDragState.draggedElement = target;
+    touchDragState.draggedKey = key;
+    touchDragState.touchStartX = e.touches[0].clientX;
+    touchDragState.touchStartY = e.touches[0].clientY;
+    
+    // Create visual clone
+    const clone = target.cloneNode(true);
+    clone.style.position = 'fixed';
+    clone.style.pointerEvents = 'none';
+    clone.style.zIndex = '9999';
+    clone.style.opacity = '0.8';
+    clone.style.transform = 'scale(1.1)';
+    clone.style.left = touchDragState.touchStartX + 'px';
+    clone.style.top = touchDragState.touchStartY + 'px';
+    clone.style.width = target.offsetWidth + 'px';
+    clone.classList.add('touch-dragging');
+    
+    document.body.appendChild(clone);
+    touchDragState.clone = clone;
+    
+    // Fade out original
+    target.style.opacity = '0.3';
+    
+    // Set dragging state
+    state.draggingProfileId = key;
+}
+
+function handleTouchMove(e) {
+    if (!touchDragState.isDragging || !touchDragState.clone) return;
+    
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    
+    // Move clone with finger
+    touchDragState.clone.style.left = touch.clientX - (touchDragState.clone.offsetWidth / 2) + 'px';
+    touchDragState.clone.style.top = touch.clientY - (touchDragState.clone.offsetHeight / 2) + 'px';
+    
+    // Find drop target under finger
+    const elementUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // Find the closest drop zone
+    let dropZone = elementUnderFinger;
+    while (dropZone && !dropZone.hasAttribute('ondrop')) {
+        dropZone = dropZone.parentElement;
+    }
+    
+    // Highlight drop zone
+    document.querySelectorAll('.drop-zone-highlight').forEach(el => {
+        el.classList.remove('drop-zone-highlight');
+    });
+    
+    if (dropZone && dropZone.hasAttribute('ondrop')) {
+        dropZone.classList.add('drop-zone-highlight');
+        touchDragState.dropTarget = dropZone;
+    } else {
+        touchDragState.dropTarget = null;
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!touchDragState.isDragging) return;
+    
+    e.preventDefault();
+    
+    // Remove clone
+    if (touchDragState.clone) {
+        touchDragState.clone.remove();
+    }
+    
+    // Restore original opacity
+    if (touchDragState.draggedElement) {
+        touchDragState.draggedElement.style.opacity = '1';
+    }
+    
+    // Remove highlights
+    document.querySelectorAll('.drop-zone-highlight').forEach(el => {
+        el.classList.remove('drop-zone-highlight');
+    });
+    
+    // Handle drop
+    if (touchDragState.dropTarget) {
+        const ondropAttr = touchDragState.dropTarget.getAttribute('ondrop');
+        
+        // Check if it's a grid cell drop
+        if (ondropAttr && ondropAttr.includes('handleDrop')) {
+            // Extract performance and potential from the ondrop attribute
+            const match = ondropAttr.match(/handleDrop\(event,\s*(\d+),\s*(\d+)\)/);
+            if (match) {
+                const performance = parseInt(match[1]);
+                const potential = parseInt(match[2]);
+                
+                // Execute the drop logic
+                const key = touchDragState.draggedKey;
+                if (key) {
+                    const existing = Object.keys(state.nineBoxPlacements).find(
+                        id => state.nineBoxPlacements[id].performance === performance && 
+                              state.nineBoxPlacements[id].potential === potential
+                    );
+                    if (existing && existing !== key) {
+                        delete state.nineBoxPlacements[existing];
+                    }
+                    state.nineBoxPlacements[key] = { performance, potential };
+                    render();
+                }
+            }
+        }
+        // Check if it's a drop back to pool
+        else if (ondropAttr && ondropAttr.includes('handleDropToPool')) {
+            const key = touchDragState.draggedKey;
+            if (key && state.nineBoxPlacements[key]) {
+                delete state.nineBoxPlacements[key];
+                render();
+            }
+        }
+    }
+    
+    // Reset state
+    touchDragState.isDragging = false;
+    touchDragState.draggedElement = null;
+    touchDragState.draggedKey = null;
+    touchDragState.clone = null;
+    touchDragState.dropTarget = null;
+    state.draggingProfileId = null;
+}
+
+function handleDropZoneTouchMove(e) {
+    // Prevent scrolling while dragging
+    if (touchDragState.isDragging) {
+        e.preventDefault();
+    }
+}
+
+function extractProfileKey(element) {
+    // Try to extract the profile key from the draggable element
+    const ondragstart = element.getAttribute('ondragstart');
+    if (ondragstart) {
+        const match = ondragstart.match(/handleDragStart\(['"]([^'"]+)['"]\)/);
+        if (match) return match[1];
+    }
+    return null;
+}
         function renderNineBox() {
             const timeUp = isNineBoxTimeUp();
             const savedNineBox = state.team?.completedNineBox || null;
@@ -1382,8 +1589,8 @@ function renderTimerPill(id, text) {
                     </div>
                 </header>
 
-                <main class="p-4 sm:p-6 max-w-4xl mx-auto space-y-8 animate-pop">
-                    <section>
+<main class="p-4 sm:p-6 max-w-4xl mx-auto space-y-8 animate-pop nine-box-container">
+                <section>
                         <div class="flex items-center justify-between mb-3">
                             <h2 class="text-lg font-black text-slate-800">Box Names</h2>
                             <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Drag into grid</p>
