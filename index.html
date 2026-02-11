@@ -3,149 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Leading Talent</title>
+    <title>Leading Talents</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-       
-
-
-
-
-/* Improve touch targets for mobile */
-.touch-manipulation {
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Better touch feedback */
-.touch-dragging {
+        .touch-dragging {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     transition: none;
 }
 
 .drop-zone-highlight {
-    background-color: rgba(14, 165, 233, 0.3) !important;
+    background-color: rgba(14, 165, 233, 0.2) !important;
     transform: scale(1.05);
     transition: all 0.2s ease;
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.6) !important;
-    animation: pulse-glow 1s ease-in-out infinite;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.5);
 }
 
-@keyframes pulse-glow {
-    0%, 100% {
-        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.6);
-    }
-    50% {
-        box-shadow: 0 0 0 6px rgba(14, 165, 233, 0.4);
-    }
-}
-
-/* Prevent text selection during drag */
 .nine-box-container * {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
 }
 
-/* Improve grid cell sizing on mobile */
-@media (max-width: 640px) {
-    .nine-box-container .grid.grid-cols-3 > div {
-        min-height: 100px;
-    }
+/* Auto-scroll zones for mobile drag */
+.nine-box-scroll-container {
+    position: relative;
 }
 
-/* Make draggable items more obvious on mobile */
+.auto-scroll-trigger-top,
+.auto-scroll-trigger-bottom {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 80px;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.auto-scroll-trigger-top {
+    top: 140px; /* Below header */
+}
+
+.auto-scroll-trigger-bottom {
+    bottom: 0;
+}
+
+/* Better mobile grid sizing */
 @media (max-width: 640px) {
-    [draggable="true"]:not([draggable="false"]) {
-        cursor: grab;
-        position: relative;
+    .nine-box-grid-cell {
+        min-height: 100px !important;
+        font-size: 10px !important;
     }
     
-    [draggable="true"]:not([draggable="false"])::after {
-        content: "⋮⋮";
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(0,0,0,0.2);
-        font-size: 16px;
-        letter-spacing: -2px;
+    .nine-box-label-item {
+        font-size: 11px !important;
+        padding: 10px !important;
     }
 }
-
-/* Sticky submit button on mobile */
-@media (max-width: 640px) {
-    [data-submit="nine"] {
-        position: sticky;
-        bottom: 0;
-        z-index: 30;
-    }
-}
-
-/* Reduce header size on mobile for more screen space */
-@media (max-width: 640px) {
-    header.glass {
-        padding: 0.5rem;
-    }
-    
-    /* Make timer pill smaller on mobile */
-    .timer-pill-mobile {
-        transform: scale(0.85);
-    }
-}
-
-/* Smooth scroll behavior */
-html {
-    scroll-behavior: smooth;
-}
-
-/* When dragging, add visual indicator */
-body.is-dragging {
-    cursor: grabbing !important;
-}
-
-body.is-dragging * {
-    cursor: grabbing !important;
-}
-
-/* Improve grid readability on small screens */
-@media (max-width: 640px) {
-    /* Make cell text more readable */
-    .nine-box-container [ondrop] {
-        font-size: 9px;
-        line-height: 1.2;
-    }
-    
-    /* Larger touch targets for placed items */
-    .nine-box-container [ondrop] > div[draggable="true"] {
-        min-height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 0.5rem;
-    }
-}
-
-/* Visual feedback when item is being dragged from grid */
-.nine-box-container [ondrop].has-dragged-item {
-    background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        rgba(255,255,255,0.1) 10px,
-        rgba(255,255,255,0.1) 20px
-    );
-}
-
-/* Better spacing for pool items on mobile */
-@media (max-width: 640px) {
-    .nine-box-container .grid.grid-cols-1 > div {
-        padding: 0.75rem;
-        min-height: 60px;
-    }
-}
-
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         html { height: 100%; }
         *, *::before, *::after { box-sizing: border-box; }
@@ -224,9 +137,9 @@ body.is-dragging * {
             { id: "omar", name: "Omar", avatar: "img/omar-avatar.png", job: "Branch Manager", age: 28, exp: "4 Years", traits: [
                 "Very good knowledge of the retail KPIs, market dynamics, and financial management.",
                 "His manager feedback that he needs to focus on building a more collaborative and engaging team environment.",
-                "Manager feedback notes that he believes using manager’s authority is important to ensure seamless operations.",
+                "Manager feedback notes that he believes using manager's authority is important to ensure seamless operations.",
                 "Problem-solving skills. Handling store administrative and quality tasks efficiently & interested in learning more about managing inventory.",
-                "He has positive and proactive attitude in company projects, often going above and beyond to contribute to the team’s success. He is highly receptive to feedback and eagerly embraces change.",
+                "He has positive and proactive attitude in company projects, often going above and beyond to contribute to the team's success. He is highly receptive to feedback and eagerly embraces change.",
                 "Promoted to branch manager since 6 Years",
                 "Ach last year: 104%, Q1= 107%",
                 "Career aspiration: Operation & Sales Supervisor"
@@ -244,8 +157,8 @@ body.is-dragging * {
                 "Collaborative employee who always seeks for development & feedback and act accordingly.",
                 "Hasn`t passed the last assessment. Results were announced late Dec.",
                 "One of the top achievers. Demonstrates potential leadership qualities and is proactive in taking on new responsibilities and supporting company objectives.",
-                "His manager’s feedback indicates that he is reliable in situations where options and information are limited and time is constrained.",
-                "His manager’s wants to delegate more tasks to him to devote time to planning but he needs to free some of Omar tasks to do this task.",
+                "His manager's feedback indicates that he is reliable in situations where options and information are limited and time is constrained.",
+                "His manager's wants to delegate more tasks to him to devote time to planning but he needs to free some of Omar tasks to do this task.",
                 "His communications show he is a little bit disappointed during the last Quarter.",
                 "Ach last year: 108%, Q1 is 101%.",
                 "Career aspiration: Branch Manager then Operation & Sales Supervisor"
@@ -261,7 +174,7 @@ body.is-dragging * {
             ], answers: { k: 4, s: 1, a: 2 }, performancePotential: { performance: 1, potential: 1 } },
             { id: "ali", name: "Ali", avatar: "img/ali-avatar.png", job: "Pharmacist", age: 26, exp: "2 Years", traits: [
                 "Strong problem-solving abilities and quick decision- making.",
-                "Effective in handling customer queries and complaints and has overall fair product knowledge including cosmoceuticals. His manager’s feedback highlighted his expertise in selling cosmeceutical products and being the go to person in follow up tasks.",
+                "Effective in handling customer queries and complaints and has overall fair product knowledge including cosmoceuticals. His manager's feedback highlighted his expertise in selling cosmeceutical products and being the go to person in follow up tasks.",
                 "One of the best in identifying customers' real needs and providing the proper cross-selling or recommending upselling.",
                 "Prefers to work individually and when he works in a team, he tries to dominate, blames others and claiming the credit for himself leading to a tense work environment.",
                 "Ach last year: 110%, Q1=114%",
@@ -279,9 +192,6 @@ body.is-dragging * {
         ];
 
         // --- TIMER CONFIG ---
-        // Activity 1 (Performance): Trial=0, First=5, Second=5
-        // Activity 3 (KSA): Trial=0, First=8, Second=10
-        // Activity 2 (9-Box): total=5
         const TIMER_CONFIG = {
             performanceRounds: [0, 5, 5],
             ksaRounds: [0, 8, 10],
@@ -308,7 +218,6 @@ body.is-dragging * {
             performanceRoundIndex: null,
             ksaRoundIndex: null,
             timerId: null,
-            // timerStatusCache: { performance: null, ksa: null, ninebox: null },
             timerStatusCache: { performance: 'none', ksa: 'none', ninebox: 'none' },
             nineBoxPlacements: {},
             isNineBoxSubmitted: false,
@@ -368,7 +277,6 @@ body.is-dragging * {
             if (!team.timers.ksaRounds || typeof team.timers.ksaRounds !== 'object') team.timers.ksaRounds = {};
             if (typeof team.timers.nineBoxEndMs !== 'number') team.timers.nineBoxEndMs = null;
 
-            // If backend doesn't persist `timers`, recover from meta entry.
             const metaTimers = getTimersFromMeta(team);
             if (metaTimers && typeof metaTimers === 'object') {
                 team.timers = {
@@ -386,7 +294,6 @@ body.is-dragging * {
                 };
             }
 
-            // Keep meta updated so API persistence works.
             upsertTimerMeta(team);
             return team;
         }
@@ -404,7 +311,6 @@ body.is-dragging * {
             if (!normalizedIncoming.completedNineBox && normalizedBase?.completedNineBox) {
                 normalizedIncoming.completedNineBox = normalizedBase.completedNineBox;
             }
-            // Merge timers conservatively so we don't drop local timer state on partial updates.
             normalizedIncoming.timers = {
                 ...(normalizedBase?.timers || {}),
                 ...(normalizedIncoming?.timers || {}),
@@ -427,12 +333,10 @@ body.is-dragging * {
 
         async function fetchRegistry(silent = false) {
             try {
-                // Add cache-busting to avoid stale GET responses from proxies or CDNs
                 const res = await fetch(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
                 if (!res.ok) throw new Error("Network error");
                 const data = await res.json();
                 console.debug('fetchRegistry response:', data);
-                // Accept either a top-level array or an object with a `registry` array
                 let registryData = [];
                 if (Array.isArray(data)) registryData = data;
                 else if (data && Array.isArray(data.registry)) registryData = data.registry;
@@ -446,7 +350,6 @@ body.is-dragging * {
                     }
                 }
 
-                // Keep local team in sync (timers, coins, etc.) so admin changes reflect immediately.
                 if (state.team && state.team.name) {
                     const myName = String(state.team.name || '').toLowerCase();
                     const updatedSelf = state.registry.find(t => String(t.name || '').toLowerCase() === myName);
@@ -478,7 +381,6 @@ body.is-dragging * {
                 const result = await res.json();
                 console.debug('apiCall result:', result);
                 if (result && result.success) {
-                    // Prefer registry from response, but fallback to refetch if absent
                     if (Array.isArray(result.registry)) state.registry = result.registry.map((t) => normalizeTeam(t));
                     if (state.team) {
                         const lookup = String(payload?.team?.newName || payload?.team?.name || '').toLowerCase();
@@ -488,8 +390,6 @@ body.is-dragging * {
                             localStorage.setItem('team_data', JSON.stringify(state.team));
                         }
                     }
-                    // Immediately re-render so UI reflects changes without waiting
-                    // render();
                     return true;
                 }
                 return false;
@@ -518,14 +418,14 @@ body.is-dragging * {
         }
 
         function save() {
-                console.trace('SAVE CALLED');  // ← Add this to see the call stack
-
+            console.trace('SAVE CALLED');
             if (state.team) {
                 state.team = normalizeTeam(state.team);
                 localStorage.setItem('team_data', JSON.stringify(state.team));
                 pushTeamUpdate(state.team);
             }
         }
+
         function navigate(view, data = null) {
             state.view = view;
             if (data) state.selectedProfile = data;
@@ -591,21 +491,21 @@ body.is-dragging * {
             render();
             window.scrollTo(0, 0);
         }
-let touchDragState = {
-    isDragging: false,
-    draggedElement: null,
-    draggedKey: null,
-    touchStartX: 0,
-    touchStartY: 0,
-    clone: null,
-    dropTarget: null,
-    scrollInterval: null,  // NEW: for auto-scroll
-    lastTouchY: 0          // NEW: track scroll position
-};
+
+        let touchDragState = {
+            isDragging: false,
+            draggedElement: null,
+            draggedKey: null,
+            touchStartX: 0,
+            touchStartY: 0,
+            clone: null,
+            dropTarget: null,
+            autoScrollInterval: null,
+            lastTouchY: 0
+        };
 
         function render() {
-                console.log('RENDER CALLED:', state.view); // ← Add this
-
+            console.log('RENDER CALLED:', state.view);
             const root = document.getElementById('root');
             switch(state.view) {
                 case 'LOGIN': root.innerHTML = renderLogin(); break;
@@ -626,80 +526,76 @@ let touchDragState = {
             ensureTimerTick();
             ensureRegistryPolling();
             if (state.view === 'NINE_BOX') {
-    setTimeout(() => initTouchDragAndDrop(), 50);
-}
+                setTimeout(() => initTouchDragAndDrop(), 50);
+            }
         }
 
         function ensureRegistryPolling() {
-    const isLoggedIn = Boolean(state.team);
-    const role = state.team?.role || null;
+            const isLoggedIn = Boolean(state.team);
+            const role = state.team?.role || null;
 
-    const shouldPoll = Boolean(
-        isLoggedIn && (
-            role === 'PARTICIPANT' ||
-            (role === 'ADMIN' && ['ADMIN_DASHBOARD', 'LEADERBOARD'].includes(state.view))
-        )
-    );
+            const shouldPoll = Boolean(
+                isLoggedIn && (
+                    role === 'PARTICIPANT' ||
+                    (role === 'ADMIN' && ['ADMIN_DASHBOARD', 'LEADERBOARD'].includes(state.view))
+                )
+            );
 
-    const desiredMs = role === 'ADMIN' ? 2500 : 5000;
+            const desiredMs = role === 'ADMIN' ? 2500 : 5000;
 
-    if (!shouldPoll) {
-        if (state.registryPollId) {
-            clearInterval(state.registryPollId);
-            state.registryPollId = null;
-            state.registryPollMs = null;
-        }
-        return;
-    }
-
-    // Restart polling if interval needs to change (e.g., role/view change)
-    if (state.registryPollId && state.registryPollMs !== desiredMs) {
-        clearInterval(state.registryPollId);
-        state.registryPollId = null;
-        state.registryPollMs = null;
-    }
-
-    if (state.registryPollId) return;
-    state.registryPollMs = desiredMs;
-
-    state.registryPollId = setInterval(async () => {
-        try {
-            const res = await fetch(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
-            if (!res.ok) return;
-            const data = await res.json();
-            
-            let registryData = [];
-            if (Array.isArray(data)) registryData = data;
-            else if (data && Array.isArray(data.registry)) registryData = data.registry;
-            
-            state.registry = registryData.map((t) => normalizeTeam(t));
-            
-            // Update config from registry
-            const cfg = state.registry.find(t => t.name === '__SESSION_CONFIG__');
-            if (cfg && Array.isArray(cfg.completedProfiles)) {
-                const maybeConfig = cfg.completedProfiles.find((v) => typeof v === 'string' && v.trim().startsWith('{'));
-                if (maybeConfig) {
-                    try { 
-                        state.config = JSON.parse(maybeConfig);
-                    } catch (err) {}
+            if (!shouldPoll) {
+                if (state.registryPollId) {
+                    clearInterval(state.registryPollId);
+                    state.registryPollId = null;
+                    state.registryPollMs = null;
                 }
-            }
-            
-            // Admin views need a re-render to show live progress/coins.
-            if (role === 'ADMIN' && ['ADMIN_DASHBOARD', 'LEADERBOARD'].includes(state.view)) {
-                render();
                 return;
             }
 
-            // Participant landing page uses DOM hooks for lock/unlock buttons.
-            if (state.view === 'LANDING') {
-                updateActivityButtons();
+            if (state.registryPollId && state.registryPollMs !== desiredMs) {
+                clearInterval(state.registryPollId);
+                state.registryPollId = null;
+                state.registryPollMs = null;
             }
-        } catch (err) {
-            console.error("Registry polling error:", err);
+
+            if (state.registryPollId) return;
+            state.registryPollMs = desiredMs;
+
+            state.registryPollId = setInterval(async () => {
+                try {
+                    const res = await fetch(API_URL + '?_=' + Date.now(), { cache: 'no-store' });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    
+                    let registryData = [];
+                    if (Array.isArray(data)) registryData = data;
+                    else if (data && Array.isArray(data.registry)) registryData = data.registry;
+                    
+                    state.registry = registryData.map((t) => normalizeTeam(t));
+                    
+                    const cfg = state.registry.find(t => t.name === '__SESSION_CONFIG__');
+                    if (cfg && Array.isArray(cfg.completedProfiles)) {
+                        const maybeConfig = cfg.completedProfiles.find((v) => typeof v === 'string' && v.trim().startsWith('{'));
+                        if (maybeConfig) {
+                            try { 
+                                state.config = JSON.parse(maybeConfig);
+                            } catch (err) {}
+                        }
+                    }
+                    
+                    if (role === 'ADMIN' && ['ADMIN_DASHBOARD', 'LEADERBOARD'].includes(state.view)) {
+                        render();
+                        return;
+                    }
+
+                    if (state.view === 'LANDING') {
+                        updateActivityButtons();
+                    }
+                } catch (err) {
+                    console.error("Registry polling error:", err);
+                }
+            }, desiredMs);
         }
-    }, desiredMs);
-}
 
         function renderSyncStatus() {
             const el = document.getElementById('sync-indicator');
@@ -734,82 +630,82 @@ let touchDragState = {
         }
 
         function updateActivityButtons() {
-    const activity1Btn = document.querySelector('[data-activity="activity1"]');
-    const activity2Btn = document.querySelector('[data-activity="activity2"]');
-    const activity3Btn = document.querySelector('[data-activity="activity3"]');
-    
-    if (activity1Btn) {
-        if (state.config.activity1) {
-            activity1Btn.onclick = () => navigate('PERFORMANCE_ROUNDS');
-            activity1Btn.classList.remove('opacity-50', 'grayscale');
-        } else {
-            activity1Btn.onclick = () => alert('Locked');
-            activity1Btn.classList.add('opacity-50', 'grayscale');
+            const activity1Btn = document.querySelector('[data-activity="activity1"]');
+            const activity2Btn = document.querySelector('[data-activity="activity2"]');
+            const activity3Btn = document.querySelector('[data-activity="activity3"]');
+            
+            if (activity1Btn) {
+                if (state.config.activity1) {
+                    activity1Btn.onclick = () => navigate('PERFORMANCE_ROUNDS');
+                    activity1Btn.classList.remove('opacity-50', 'grayscale');
+                } else {
+                    activity1Btn.onclick = () => alert('Locked');
+                    activity1Btn.classList.add('opacity-50', 'grayscale');
+                }
+            }
+            
+            if (activity2Btn) {
+                if (state.config.activity2) {
+                    activity2Btn.onclick = () => openNineBox();
+                    activity2Btn.classList.remove('opacity-50', 'grayscale');
+                } else {
+                    activity2Btn.onclick = () => alert('Locked');
+                    activity2Btn.classList.add('opacity-50', 'grayscale');
+                }
+            }
+            
+            if (activity3Btn) {
+                if (state.config.activity3) {
+                    activity3Btn.onclick = () => navigate('KSA_ROUNDS');
+                    activity3Btn.classList.remove('opacity-50', 'grayscale');
+                } else {
+                    activity3Btn.onclick = () => alert('Locked');
+                    activity3Btn.classList.add('opacity-50', 'grayscale');
+                }
+            }
         }
-    }
-    
-    if (activity2Btn) {
-        if (state.config.activity2) {
-            activity2Btn.onclick = () => openNineBox();
-            activity2Btn.classList.remove('opacity-50', 'grayscale');
-        } else {
-            activity2Btn.onclick = () => alert('Locked');
-            activity2Btn.classList.add('opacity-50', 'grayscale');
-        }
-    }
-    
-    if (activity3Btn) {
-        if (state.config.activity3) {
-            activity3Btn.onclick = () => navigate('KSA_ROUNDS');
-            activity3Btn.classList.remove('opacity-50', 'grayscale');
-        } else {
-            activity3Btn.onclick = () => alert('Locked');
-            activity3Btn.classList.add('opacity-50', 'grayscale');
-        }
-    }
-}
 
-function renderLanding() {
-    const isAdmin = state.team.role === 'ADMIN';
-    return `<div class="min-h-screen bg-slate-50">
-        <header class="glass sticky top-0 z-40 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-sky-600 rounded-full flex items-center justify-center text-white font-black shadow-lg">${state.team.name[0].toUpperCase()}</div>
-                <h2 class="font-black text-slate-800 uppercase text-xs tracking-widest leading-none">${state.team.name}</h2>
-            </div>
-            <div class="flex items-center gap-3">
-                <div id="sync-indicator"></div>
-                <button onclick="handleLogout()" class="text-red-500 font-black text-[10px] uppercase border border-red-100 px-3 py-1 rounded-full bg-white">Logout</button>
-            </div>
-        </header>
-        <main class="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 animate-pop">
-            <div class="py-2 sm:py-4"><h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">${isAdmin ? 'Control Center' : 'Training Modules'}</h1></div>
-            <div class="grid gap-6">
-                ${isAdmin ? `<button onclick="navigate('ADMIN_DASHBOARD')" class="w-full bg-slate-900 text-white p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group">
-                    <div class="bg-sky-600 p-4 sm:p-5 rounded-[2rem]"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg></div>
-                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black">Admin Dashboard</h3><p class="text-slate-400 font-medium text-sm">Manage sessions and teams.</p></div>
-                </button>` : `
-                <button data-activity="activity1" onclick="${state.config.activity1 ? "navigate('PERFORMANCE_ROUNDS')" : "alert('Locked')" }" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all active:scale-[0.98] ${!state.config.activity1 ? 'opacity-50 grayscale' : ''}">
-                    <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></div>
-                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 1: Evaluating Performance &amp; Potential</h3><p class="text-slate-500 font-medium text-sm">Assess performance and potential on a 1-3 scale.</p></div>
-                </button>
-                <button data-activity="activity2" onclick="${state.config.activity2 ? "openNineBox()" : "alert('Locked')"}" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group ${!state.config.activity2 ? 'opacity-50 grayscale' : ''}">
-                    <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg></div>
-                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 2: 9-Box Grid</h3><p class="text-slate-500 font-medium text-sm">Drag box names into the performance/potential grid.</p></div>
-                </button>
-                <button data-activity="activity3" onclick="${state.config.activity3 ? "navigate('KSA_ROUNDS')" : "alert('Locked')" }" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all active:scale-[0.98] ${!state.config.activity3 ? 'opacity-50 grayscale' : ''}">
-                    <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
-                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 3: Evaluating KSA</h3><p class="text-slate-500 font-medium text-sm">Pharmacist evaluation module.</p></div>
-                </button>
-                `}
-                <button onclick="navigate('LEADERBOARD')" class="w-full bg-white border-2 border-slate-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 transition-all active:scale-[0.98]">
-                    <div class="bg-slate-50 p-4 sm:p-5 rounded-[2rem] text-slate-600"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
-                    <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Leaderboard</h3><p class="text-slate-500 font-medium text-sm">Live team rankings.</p></div>
-                </button>
-            </div>
-        </main>
-    </div>`;
-}
+        function renderLanding() {
+            const isAdmin = state.team.role === 'ADMIN';
+            return `<div class="min-h-screen bg-slate-50">
+                <header class="glass sticky top-0 z-40 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 border-b shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-sky-600 rounded-full flex items-center justify-center text-white font-black shadow-lg">${state.team.name[0].toUpperCase()}</div>
+                        <h2 class="font-black text-slate-800 uppercase text-xs tracking-widest leading-none">${state.team.name}</h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div id="sync-indicator"></div>
+                        <button onclick="handleLogout()" class="text-red-500 font-black text-[10px] uppercase border border-red-100 px-3 py-1 rounded-full bg-white">Logout</button>
+                    </div>
+                </header>
+                <main class="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 animate-pop">
+                    <div class="py-2 sm:py-4"><h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">${isAdmin ? 'Control Center' : 'Training Modules'}</h1></div>
+                    <div class="grid gap-6">
+                        ${isAdmin ? `<button onclick="navigate('ADMIN_DASHBOARD')" class="w-full bg-slate-900 text-white p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group">
+                            <div class="bg-sky-600 p-4 sm:p-5 rounded-[2rem]"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg></div>
+                            <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black">Admin Dashboard</h3><p class="text-slate-400 font-medium text-sm">Manage sessions and teams.</p></div>
+                        </button>` : `
+                        <button data-activity="activity1" onclick="${state.config.activity1 ? "navigate('PERFORMANCE_ROUNDS')" : "alert('Locked')" }" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all active:scale-[0.98] ${!state.config.activity1 ? 'opacity-50 grayscale' : ''}">
+                            <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></div>
+                            <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 1: Evaluating Performance &amp; Potential</h3><p class="text-slate-500 font-medium text-sm">Assess performance and potential on a 1-3 scale.</p></div>
+                        </button>
+                        <button data-activity="activity2" onclick="${state.config.activity2 ? "openNineBox()" : "alert('Locked')"}" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group ${!state.config.activity2 ? 'opacity-50 grayscale' : ''}">
+                            <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg></div>
+                            <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 2: 9-Box Grid</h3><p class="text-slate-500 font-medium text-sm">Drag box names into the performance/potential grid.</p></div>
+                        </button>
+                        <button data-activity="activity3" onclick="${state.config.activity3 ? "navigate('KSA_ROUNDS')" : "alert('Locked')" }" class="w-full bg-white border-2 border-sky-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 group transition-all active:scale-[0.98] ${!state.config.activity3 ? 'opacity-50 grayscale' : ''}">
+                            <div class="bg-sky-50 p-4 sm:p-5 rounded-[2rem] text-sky-600 transition-all"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+                            <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Activity 3: Evaluating KSA</h3><p class="text-slate-500 font-medium text-sm">Pharmacist evaluation module.</p></div>
+                        </button>
+                        `}
+                        <button onclick="navigate('LEADERBOARD')" class="w-full bg-white border-2 border-slate-100 p-5 sm:p-8 rounded-[3rem] shadow-xl text-left flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 transition-all active:scale-[0.98]">
+                            <div class="bg-slate-50 p-4 sm:p-5 rounded-[2rem] text-slate-600"><svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
+                            <div class="flex-1"><h3 class="text-xl sm:text-2xl font-black text-slate-800">Leaderboard</h3><p class="text-slate-500 font-medium text-sm">Live team rankings.</p></div>
+                        </button>
+                    </div>
+                </main>
+            </div>`;
+        }
        
         function renderAdminDashboard() {
             const teams = state.registry.filter(t => t.role === 'PARTICIPANT');
@@ -1035,7 +931,7 @@ function renderLanding() {
                         ${renderTimerPill('timer-ksa', timerText)}
                     </div>
                     <div class="flex items-center justify-end gap-2">
-                        <button onclick="navigate('LEADERBOARD')" class="bg-sky-600 text-white p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 0 01-2-2z"></path></svg></button>
+                        <button onclick="navigate('LEADERBOARD')" class="bg-sky-600 text-white p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></button>
                     </div>
                 </header>
                 <main class="p-4 sm:p-6 max-w-xl mx-auto">
@@ -1095,14 +991,12 @@ function renderLanding() {
             return state.team.completedProfiles.find(cp => (typeof cp === 'string' ? cp === profileId : cp.id === profileId)) || null;
         }
 
-        // Activity 1 (Performance & Potential)
         const PERFORMANCE_ROUNDS = [
             { label: 'Trial Round', ids: ['fahd'] },
             { label: 'First Round', ids: ['hossam', 'youseff'] },
             { label: 'Second Round', ids: ['ali', 'omar', 'faisal'] }
         ];
 
-        // Activity 3 (KSA)
         const KSA_ROUNDS = [
             { label: 'Trial Round', ids: ['fahd'] },
             { label: 'First Round', ids: ['faisal', 'ali'] },
@@ -1167,98 +1061,78 @@ function renderLanding() {
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // function getRoundTimerText(activity, roundIndex) {
-        //     const minutes = getRoundDurationMinutes(activity, roundIndex);
-        //     if (minutes <= 0) return '';
-        //     const endMs = getTeamRoundEndMs(state.team, activity, roundIndex);
-        //     if (!endMs) return 'Not started';
-        //     const left = getTimeLeftSeconds(endMs);
-        //     if (left <= 0) return 'Time Up';
-        //     return formatTimer(left);
-        // }
+        function isRoundFullyCompleted(activity, roundIndex) {
+            if (!state.team) return false;
+            const rounds = activity === 'performance' ? PERFORMANCE_ROUNDS : KSA_ROUNDS;
+            const completedList = activity === 'performance' 
+                ? state.team.completedPerformanceProfiles 
+                : state.team.completedProfiles;
+            const round = rounds[roundIndex];
+            if (!round) return false;
+            const completedIds = getCompletedIds(completedList || []);
+            return round.ids.every(id => completedIds.includes(id));
+        }
 
-function isRoundFullyCompleted(activity, roundIndex) {
-    if (!state.team) return false;
-    const rounds = activity === 'performance' ? PERFORMANCE_ROUNDS : KSA_ROUNDS;
-    const completedList = activity === 'performance' 
-        ? state.team.completedPerformanceProfiles 
-        : state.team.completedProfiles;
-    const round = rounds[roundIndex];
-    if (!round) return false;
-    const completedIds = getCompletedIds(completedList || []);
-    return round.ids.every(id => completedIds.includes(id));
-}
+        function getRoundTimerText(activity, roundIndex) {
+            const minutes = getRoundDurationMinutes(activity, roundIndex);
+            if (minutes <= 0) return '';
+            
+            if (isRoundFullyCompleted(activity, roundIndex)) return 'Completed';
+            
+            const endMs = getTeamRoundEndMs(state.team, activity, roundIndex);
+            if (!endMs) return 'Not started';
+            const left = getTimeLeftSeconds(endMs);
+            if (left <= 0) return 'Time Up';
+            return formatTimer(left);
+        }
 
-// ============================================
-// TIMER FIX: Replace existing getRoundTimerText()
-// ============================================
-
-function getRoundTimerText(activity, roundIndex) {
-    const minutes = getRoundDurationMinutes(activity, roundIndex);
-    if (minutes <= 0) return '';
-    
-    // Check if round is fully completed
-    if (isRoundFullyCompleted(activity, roundIndex)) return 'Completed';
-    
-    const endMs = getTeamRoundEndMs(state.team, activity, roundIndex);
-    if (!endMs) return 'Not started';
-    const left = getTimeLeftSeconds(endMs);
-    if (left <= 0) return 'Time Up';
-    return formatTimer(left);
-}
-
-// ============================================
-// TIMER FIX: Replace existing renderTimerPill()
-// ============================================
-
-function renderTimerPill(id, text) {
-    if (!text) return '';
-    const isUp = text === 'Time Up';
-    const isNotStarted = text === 'Not started';
-    const isCompleted = text === 'Completed';
-    
-    // Parse minutes and seconds if it's a timer
-    let isCritical = false;
-    if (!isUp && !isNotStarted && !isCompleted && text.includes(':')) {
-        const [minutes, seconds] = text.split(':').map(Number);
-        isCritical = minutes === 0 && seconds < 30;
-    }
-    
-    let bgColor, borderColor, textColor, extraClasses = '';
-    
-    if (isCompleted) {
-        bgColor = 'bg-green-600';
-        borderColor = 'border-green-800';
-        textColor = 'text-white';
-        extraClasses = 'ring-4 ring-green-300 ring-opacity-50';
-    } else if (isUp) {
-        bgColor = 'bg-red-600';
-        borderColor = 'border-red-800';
-        textColor = 'text-white';
-        extraClasses = 'animate-pulse ring-4 ring-red-300 ring-opacity-50';
-    } else if (isNotStarted) {
-        bgColor = 'bg-slate-200';
-        borderColor = 'border-slate-400';
-        textColor = 'text-slate-700';
-    } else if (isCritical) {
-        bgColor = 'bg-orange-500';
-        borderColor = 'border-orange-700';
-        textColor = 'text-white';
-        extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
-    } else {
-        bgColor = 'bg-gradient-to-r from-teal-600 to-cyan-600';
-        borderColor = 'border-teal-700';
-        textColor = 'text-white';
-        extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
-    }
-    
-    const icon = isCompleted ? '✅' : '⏱️';
-    
-    return `<div class="px-8 py-4 rounded-3xl border-2 text-xl sm:text-2xl font-black uppercase tracking-widest text-center tabular-nums shadow-2xl transform hover:scale-110 transition-all duration-300 ${bgColor} ${borderColor} ${textColor} ${extraClasses}" 
-            style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);">
-        <span id="${id}" class="inline-block min-w-[140px] sm:min-w-[160px] drop-shadow-md">${icon} ${text}</span>
-    </div>`;
-}
+        function renderTimerPill(id, text) {
+            if (!text) return '';
+            const isUp = text === 'Time Up';
+            const isNotStarted = text === 'Not started';
+            const isCompleted = text === 'Completed';
+            
+            let isCritical = false;
+            if (!isUp && !isNotStarted && !isCompleted && text.includes(':')) {
+                const [minutes, seconds] = text.split(':').map(Number);
+                isCritical = minutes === 0 && seconds < 30;
+            }
+            
+            let bgColor, borderColor, textColor, extraClasses = '';
+            
+            if (isCompleted) {
+                bgColor = 'bg-green-600';
+                borderColor = 'border-green-800';
+                textColor = 'text-white';
+                extraClasses = 'ring-4 ring-green-300 ring-opacity-50';
+            } else if (isUp) {
+                bgColor = 'bg-red-600';
+                borderColor = 'border-red-800';
+                textColor = 'text-white';
+                extraClasses = 'animate-pulse ring-4 ring-red-300 ring-opacity-50';
+            } else if (isNotStarted) {
+                bgColor = 'bg-slate-200';
+                borderColor = 'border-slate-400';
+                textColor = 'text-slate-700';
+            } else if (isCritical) {
+                bgColor = 'bg-orange-500';
+                borderColor = 'border-orange-700';
+                textColor = 'text-white';
+                extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
+            } else {
+                bgColor = 'bg-gradient-to-r from-teal-600 to-cyan-600';
+                borderColor = 'border-teal-700';
+                textColor = 'text-white';
+                extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
+            }
+            
+            const icon = isCompleted ? '✅' : '⏱️';
+            
+            return `<div class="px-8 py-4 rounded-3xl border-2 text-xl sm:text-2xl font-black uppercase tracking-widest text-center tabular-nums shadow-2xl transform hover:scale-110 transition-all duration-300 ${bgColor} ${borderColor} ${textColor} ${extraClasses}" 
+                    style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);">
+                <span id="${id}" class="inline-block min-w-[140px] sm:min-w-[160px] drop-shadow-md">${icon} ${text}</span>
+            </div>`;
+        }
 
         function getNineBoxTimerText() {
             if (TIMER_CONFIG.nineBoxMinutes <= 0) return '';
@@ -1389,49 +1263,6 @@ function renderTimerPill(id, text) {
             return Date.now() >= endMs;
         }
 
-      
-// function renderTimerPill(id, text) {
-//     if (!text) return '';
-//     const isUp = text === 'Time Up';
-//     const isNotStarted = text === 'Not started';
-    
-//     // Parse minutes and seconds if it's a timer
-//     let isCritical = false;
-//     if (!isUp && !isNotStarted && text.includes(':')) {
-//         const [minutes, seconds] = text.split(':').map(Number);
-//         isCritical = minutes === 0 && seconds < 30;
-//     }
-    
-//     let bgColor, borderColor, textColor, extraClasses = '';
-//     if (isUp) {
-//         bgColor = 'bg-red-600';
-//         borderColor = 'border-red-800';
-//         textColor = 'text-white';
-//         extraClasses = 'animate-pulse ring-4 ring-red-300 ring-opacity-50';
-//     } else if (isNotStarted) {
-//         bgColor = 'bg-slate-200';
-//         borderColor = 'border-slate-400';
-//         textColor = 'text-slate-700';
-//     } else if (isCritical) {
-//         bgColor = 'bg-orange-500';
-//         borderColor = 'border-orange-700';
-//         textColor = 'text-white';
-//         extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
-//    } else {
-   
-//     bgColor = 'bg-gradient-to-r from-teal-600 to-cyan-600';
-// borderColor = 'border-teal-700';
-//         textColor = 'text-white';
-//         extraClasses = 'animate-pulse ring-4 ring-orange-300 ring-opacity-50';
-// }
-    
-//     return `<div class="px-8 py-4 rounded-3xl border-2 text-xl sm:text-2xl font-black uppercase tracking-widest text-center tabular-nums shadow-2xl transform hover:scale-110 transition-all duration-300 ${bgColor} ${borderColor} ${textColor} ${extraClasses}" 
-//             style="box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1);">
-//         <span id="${id}" class="inline-block min-w-[140px] sm:min-w-[160px] drop-shadow-md">⏱️ ${text}</span>
-//     </div>`;
-// }
-
-
         function getCompletedIds(list) {
             if (!Array.isArray(list)) return [];
             return list.map((entry) => (typeof entry === 'string' ? entry : entry.id));
@@ -1503,275 +1334,316 @@ function renderTimerPill(id, text) {
             </div>`;
         }
 
-
-
-function handleTouchEnd(e) {
-    if (!touchDragState.isDragging) return;
-    
-    e.preventDefault();
-    
-    // Stop auto-scroll
-    stopAutoScroll();
-    
-    if (touchDragState.clone) {
-        touchDragState.clone.remove();
-    }
-    
-    if (touchDragState.draggedElement) {
-        touchDragState.draggedElement.style.opacity = '1';
-    }
-    
-    document.querySelectorAll('.drop-zone-highlight').forEach(el => {
-        el.classList.remove('drop-zone-highlight');
-    });
-    
-    // Handle drop
-    if (touchDragState.dropTarget) {
-        const ondropAttr = touchDragState.dropTarget.getAttribute('ondrop');
+        // ====================================
+        // IMPROVED MOBILE TOUCH DRAG & DROP
+        // ====================================
         
-        if (ondropAttr && ondropAttr.includes('handleDrop')) {
-            const match = ondropAttr.match(/handleDrop\(event,\s*(\d+),\s*(\d+)\)/);
-            if (match) {
-                const performance = parseInt(match[1]);
-                const potential = parseInt(match[2]);
+        function initTouchDragAndDrop() {
+            const draggables = document.querySelectorAll('[draggable="true"]');
+            const dropZones = document.querySelectorAll('[ondrop]');
+            
+            draggables.forEach(elem => {
+                elem.removeEventListener('touchstart', handleTouchStart);
+                elem.removeEventListener('touchmove', handleTouchMove);
+                elem.removeEventListener('touchend', handleTouchEnd);
                 
-                const key = touchDragState.draggedKey;
-                if (key) {
-                    const existing = Object.keys(state.nineBoxPlacements).find(
-                        id => state.nineBoxPlacements[id].performance === performance && 
-                              state.nineBoxPlacements[id].potential === potential
-                    );
-                    if (existing && existing !== key) {
-                        delete state.nineBoxPlacements[existing];
+                elem.addEventListener('touchstart', handleTouchStart, { passive: false });
+                elem.addEventListener('touchmove', handleTouchMove, { passive: false });
+                elem.addEventListener('touchend', handleTouchEnd, { passive: false });
+            });
+            
+            dropZones.forEach(zone => {
+                zone.removeEventListener('touchmove', handleDropZoneTouchMove);
+                zone.addEventListener('touchmove', handleDropZoneTouchMove, { passive: false });
+            });
+        }
+
+        function handleTouchStart(e) {
+            if (state.isNineBoxSubmitted || isNineBoxTimeUp()) {
+                e.preventDefault();
+                return;
+            }
+            
+            const target = e.currentTarget;
+            const key = extractProfileKey(target);
+            
+            if (!key) return;
+            
+            e.preventDefault();
+            
+            touchDragState.isDragging = true;
+            touchDragState.draggedElement = target;
+            touchDragState.draggedKey = key;
+            touchDragState.touchStartX = e.touches[0].clientX;
+            touchDragState.touchStartY = e.touches[0].clientY;
+            touchDragState.lastTouchY = e.touches[0].clientY;
+            
+            const clone = target.cloneNode(true);
+            clone.style.position = 'fixed';
+            clone.style.pointerEvents = 'none';
+            clone.style.zIndex = '9999';
+            clone.style.opacity = '0.8';
+            clone.style.transform = 'scale(1.1)';
+            clone.style.left = touchDragState.touchStartX + 'px';
+            clone.style.top = touchDragState.touchStartY + 'px';
+            clone.style.width = target.offsetWidth + 'px';
+            clone.classList.add('touch-dragging');
+            
+            document.body.appendChild(clone);
+            touchDragState.clone = clone;
+            
+            target.style.opacity = '0.3';
+            state.draggingProfileId = key;
+            
+            // Start auto-scroll monitoring
+            startAutoScroll();
+        }
+
+        function handleTouchMove(e) {
+            if (!touchDragState.isDragging || !touchDragState.clone) return;
+            
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            touchDragState.lastTouchY = touch.clientY;
+            
+            touchDragState.clone.style.left = touch.clientX - (touchDragState.clone.offsetWidth / 2) + 'px';
+            touchDragState.clone.style.top = touch.clientY - (touchDragState.clone.offsetHeight / 2) + 'px';
+            
+            const elementUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            let dropZone = elementUnderFinger;
+            while (dropZone && !dropZone.hasAttribute('ondrop')) {
+                dropZone = dropZone.parentElement;
+            }
+            
+            document.querySelectorAll('.drop-zone-highlight').forEach(el => {
+                el.classList.remove('drop-zone-highlight');
+            });
+            
+            if (dropZone && dropZone.hasAttribute('ondrop')) {
+                dropZone.classList.add('drop-zone-highlight');
+                touchDragState.dropTarget = dropZone;
+            } else {
+                touchDragState.dropTarget = null;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchDragState.isDragging) return;
+            
+            e.preventDefault();
+            
+            stopAutoScroll();
+            
+            if (touchDragState.clone) {
+                touchDragState.clone.remove();
+            }
+            
+            if (touchDragState.draggedElement) {
+                touchDragState.draggedElement.style.opacity = '1';
+            }
+            
+            document.querySelectorAll('.drop-zone-highlight').forEach(el => {
+                el.classList.remove('drop-zone-highlight');
+            });
+            
+            if (touchDragState.dropTarget) {
+                const ondropAttr = touchDragState.dropTarget.getAttribute('ondrop');
+                
+                if (ondropAttr && ondropAttr.includes('handleDrop')) {
+                    const match = ondropAttr.match(/handleDrop\(event,\s*(\d+),\s*(\d+)\)/);
+                    if (match) {
+                        const performance = parseInt(match[1]);
+                        const potential = parseInt(match[2]);
+                        
+                        const key = touchDragState.draggedKey;
+                        if (key) {
+                            const existing = Object.keys(state.nineBoxPlacements).find(
+                                id => state.nineBoxPlacements[id].performance === performance && 
+                                      state.nineBoxPlacements[id].potential === potential
+                            );
+                            if (existing && existing !== key) {
+                                delete state.nineBoxPlacements[existing];
+                            }
+                            state.nineBoxPlacements[key] = { performance, potential };
+                            render();
+                        }
                     }
-                    state.nineBoxPlacements[key] = { performance, potential };
-                    render();
+                }
+                else if (ondropAttr && ondropAttr.includes('handleDropToPool')) {
+                    const key = touchDragState.draggedKey;
+                    if (key && state.nineBoxPlacements[key]) {
+                        delete state.nineBoxPlacements[key];
+                        render();
+                    }
                 }
             }
-        }
-        else if (ondropAttr && ondropAttr.includes('handleDropToPool')) {
-            const key = touchDragState.draggedKey;
-            if (key && state.nineBoxPlacements[key]) {
-                delete state.nineBoxPlacements[key];
-                render();
-            }
-        }
-    }
-    
-    // Reset state
-    touchDragState.isDragging = false;
-    touchDragState.draggedElement = null;
-    touchDragState.draggedKey = null;
-    touchDragState.clone = null;
-    touchDragState.dropTarget = null;
-    state.draggingProfileId = null;
-}
-
-function handleDropZoneTouchMove(e) {
-    if (touchDragState.isDragging) {
-        e.preventDefault();
-    }
-}
-
-
-function extractProfileKey(element) {
-    const ondragstart = element.getAttribute('ondragstart');
-    if (ondragstart) {
-        const match = ondragstart.match(/handleDragStart\(['"]([^'"]+)['"]\)/);
-        if (match) return match[1];
-    }
-    return null;
-}
-
-// ============================================
-// NEW: AUTO-SCROLL FUNCTIONS
-// ============================================
-
-function startAutoScroll() {
-    if (touchDragState.scrollInterval) {
-        clearInterval(touchDragState.scrollInterval);
-    }
-    
-    touchDragState.scrollInterval = setInterval(() => {
-        if (!touchDragState.isDragging) {
-            stopAutoScroll();
-            return;
-        }
-        
-        const touchY = touchDragState.lastTouchY;
-        const windowHeight = window.innerHeight;
-        const scrollSpeed = 8;
-        const edgeThreshold = 100; // pixels from edge to trigger scroll
-        
-        // Scroll down when near bottom
-        if (touchY > windowHeight - edgeThreshold) {
-            const scrollAmount = Math.min(scrollSpeed, (touchY - (windowHeight - edgeThreshold)) / 10);
-            window.scrollBy(0, scrollAmount);
             
-            // Update clone position to follow scroll
-            if (touchDragState.clone) {
-                const currentTop = parseFloat(touchDragState.clone.style.top);
-                touchDragState.clone.style.top = (currentTop - scrollAmount) + 'px';
+            touchDragState.isDragging = false;
+            touchDragState.draggedElement = null;
+            touchDragState.draggedKey = null;
+            touchDragState.clone = null;
+            touchDragState.dropTarget = null;
+            state.draggingProfileId = null;
+        }
+
+        function handleDropZoneTouchMove(e) {
+            if (touchDragState.isDragging) {
+                e.preventDefault();
             }
         }
-        // Scroll up when near top
-        else if (touchY < edgeThreshold) {
-            const scrollAmount = Math.min(scrollSpeed, (edgeThreshold - touchY) / 10);
-            window.scrollBy(0, -scrollAmount);
+
+        function extractProfileKey(element) {
+            const ondragstart = element.getAttribute('ondragstart');
+            if (ondragstart) {
+                const match = ondragstart.match(/handleDragStart\(['"]([^'"]+)['"]\)/);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        // Auto-scroll functionality for mobile drag
+        function startAutoScroll() {
+            if (touchDragState.autoScrollInterval) return;
             
-            // Update clone position to follow scroll
-            if (touchDragState.clone) {
-                const currentTop = parseFloat(touchDragState.clone.style.top);
-                touchDragState.clone.style.top = (currentTop + scrollAmount) + 'px';
+            touchDragState.autoScrollInterval = setInterval(() => {
+                if (!touchDragState.isDragging) {
+                    stopAutoScroll();
+                    return;
+                }
+                
+                const scrollZoneHeight = 80;
+                const scrollSpeed = 8;
+                const windowHeight = window.innerHeight;
+                const touchY = touchDragState.lastTouchY;
+                
+                // Scroll down if near bottom
+                if (touchY > windowHeight - scrollZoneHeight) {
+                    window.scrollBy(0, scrollSpeed);
+                }
+                // Scroll up if near top
+                else if (touchY < scrollZoneHeight + 140) { // 140 = header height
+                    window.scrollBy(0, -scrollSpeed);
+                }
+            }, 16); // ~60fps
+        }
+
+        function stopAutoScroll() {
+            if (touchDragState.autoScrollInterval) {
+                clearInterval(touchDragState.autoScrollInterval);
+                touchDragState.autoScrollInterval = null;
             }
         }
-    }, 16); // ~60fps
-}
 
-function stopAutoScroll() {
-    if (touchDragState.scrollInterval) {
-        clearInterval(touchDragState.scrollInterval);
-        touchDragState.scrollInterval = null;
-    }
-}
-// ============================================
-// IMPROVED MOBILE LAYOUT FOR 9-BOX
-// ============================================
+        function renderNineBox() {
+            const timeUp = isNineBoxTimeUp();
+            const savedNineBox = state.team?.completedNineBox || null;
+            const placements = state.isNineBoxSubmitted && savedNineBox?.placementsCorrected ? savedNineBox.placementsCorrected : (state.nineBoxPlacements || {});
+            const feedback = state.isNineBoxSubmitted && savedNineBox?.feedback ? savedNineBox.feedback : {};
+            const gridCells = getNineBoxCells();
+            const labels = [...gridCells]
+                .sort((a, b) => (a.potential - b.potential) || (b.performance - a.performance))
+                .map(cell => ({ key: cell.key, label: cell.label }));
+            const placedKeys = Object.keys(placements);
+            const canSubmit = placedKeys.length === labels.length;
 
-// REPLACE the renderNineBox() function with this mobile-optimized version:
-
-function renderNineBox() {
-    const timeUp = isNineBoxTimeUp();
-    const savedNineBox = state.team?.completedNineBox || null;
-    const placements = state.isNineBoxSubmitted && savedNineBox?.placementsCorrected ? savedNineBox.placementsCorrected : (state.nineBoxPlacements || {});
-    const feedback = state.isNineBoxSubmitted && savedNineBox?.feedback ? savedNineBox.feedback : {};
-    const gridCells = getNineBoxCells();
-    const labels = [...gridCells]
-        .sort((a, b) => (a.potential - b.potential) || (b.performance - a.performance))
-        .map(cell => ({ key: cell.key, label: cell.label }));
-    const placedKeys = Object.keys(placements);
-    const canSubmit = placedKeys.length === labels.length;
-
-    return `<div class="min-h-screen bg-slate-50 pb-32">
-        <header class="glass sticky top-0 z-40 p-3 sm:p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-                <button onclick="navigate('LANDING')" class="p-2"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
-                <h1 class="font-black uppercase tracking-widest text-[10px] sm:text-xs text-slate-400 hidden sm:block truncate">9-Box Grid</h1>
-            </div>
-            <div class="flex justify-center">
-                ${renderTimerPill('timer-ninebox', getNineBoxTimerText())}
-            </div>
-            <div class="flex flex-wrap justify-end gap-1.5 sm:gap-2 items-center">
-                <div class="bg-yellow-100 px-2 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-yellow-200 font-black text-yellow-800 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                    <img src="img/diamond-coin.png" alt="Diamond coin" class="w-4 h-4 sm:w-5 sm:h-5 coin-diamond" />
-                    <span>${state.team.goldCoins}</span>
-                </div>
-                <div class="bg-slate-100 px-2 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-slate-200 font-black text-slate-700 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                    <img src="img/golden-coin.png" alt="Gold coin" class="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>${state.team.silverCoins}</span>
-                </div>
-            </div>
-        </header>
-
-        <main class="p-3 sm:p-4 md:p-6 max-w-5xl mx-auto space-y-4 sm:space-y-6 animate-pop nine-box-container">
-            <!-- Instructions for mobile -->
-            <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 sm:p-4 md:hidden">
-                <div class="flex items-start gap-3">
-                    <div class="text-sky-600 shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            return `<div class="min-h-screen bg-slate-50 pb-32 nine-box-scroll-container">
+                <header class="glass sticky top-0 z-40 p-4 border-b grid grid-cols-[auto,1fr,auto] items-center gap-3">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <button onclick="navigate('LANDING')" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <h1 class="font-black uppercase tracking-widest text-xs text-slate-400 hidden sm:block truncate">9-Box Grid</h1>
                     </div>
-                    <div class="text-xs font-semibold text-sky-800 leading-relaxed">
-                        <strong>How to use:</strong> Touch and hold a box name below, then drag it to the correct cell in the grid. The grid will highlight when you hover over it.
+                    <div class="flex justify-center">
+                        ${renderTimerPill('timer-ninebox', getNineBoxTimerText())}
                     </div>
-                </div>
-            </div>
-
-            <!-- Box Names Pool - IMPROVED MOBILE LAYOUT -->
-            <section>
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-base sm:text-lg font-black text-slate-800">Box Names</h2>
-                    <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Drag to grid</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)">
-                    ${labels.map(item => {
-                        const isPlaced = Boolean(placements[item.key]);
-                        return `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" 
-                                     ondragstart="handleDragStart('${item.key}')" 
-                                     ondragend="handleDragEnd()" 
-                                     class="${isPlaced ? 'opacity-40' : ''} bg-white border-2 border-slate-200 rounded-xl p-3 text-center shadow-sm font-black text-xs sm:text-sm text-slate-700 min-h-[60px] sm:min-h-[50px] flex items-center justify-center touch-manipulation active:scale-95 transition-transform">
-                            ${item.label}
-                        </div>`;
-                    }).join('')}
-                </div>
-            </section>
-
-            <!-- 9-Box Grid - IMPROVED MOBILE LAYOUT -->
-            <section class="bg-white rounded-2xl sm:rounded-[2.5rem] p-3 sm:p-4 md:p-6 shadow-2xl">
-                <!-- Mobile Optimized Grid -->
-                <div class="block">
-                    <div class="grid grid-cols-[auto,1fr] gap-2 sm:gap-3 items-stretch">
-                        <!-- Y-Axis Label -->
-                        <div class="flex flex-col items-center">
-                            <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 [writing-mode:vertical-rl] rotate-180 mb-2">Potential</span>
-                            <div class="flex-1 flex flex-col justify-between text-[9px] sm:text-[10px] font-black uppercase text-slate-400 py-1">
-                                <span>High</span>
-                                <span class="my-auto">Moderate</span>
-                                <span>Low</span>
-                            </div>
+                    <div class="flex flex-wrap justify-end gap-2 items-center">
+                        <div class="bg-yellow-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl border border-yellow-200 font-black text-yellow-800 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                            <img src="img/diamond-coin.png" alt="Diamond coin" class="w-4 h-4 sm:w-5 sm:h-5 coin-diamond" />
+                            <span>${state.team.goldCoins}</span>
                         </div>
-                        
-                        <!-- Grid Cells -->
-                        <div class="grid grid-cols-3 gap-1.5 sm:gap-2 md:gap-3">
-                            ${gridCells.map(cell => {
-                                const occupantKey = Object.keys(placements).find(key => placements[key].performance === cell.performance && placements[key].potential === cell.potential);
-                                const occupant = occupantKey ? labels.find(l => l.key === occupantKey) : null;
-                                const status = occupantKey && feedback[occupantKey] ? feedback[occupantKey].status : null;
-                                const statusClass = status === 'correct' ? 'ring-2 ring-green-500 bg-green-50' : status === 'wrong' ? 'ring-2 ring-red-500 bg-red-50' : '';
-                                
-                                return `<div ondragover="handleDragOver(event)" 
-                                             ondrop="handleDrop(event, ${cell.performance}, ${cell.potential})" 
-                                             class="${cell.tone} ${cell.text} rounded-xl sm:rounded-2xl min-h-[100px] sm:min-h-[110px] md:h-28 p-2 sm:p-3 font-black text-[9px] sm:text-xs flex flex-col justify-between border-2 border-white/60 relative touch-manipulation">
-                                    <!-- Cell Label - Hidden on mobile if occupied -->
-                                    <div class="opacity-90 text-[8px] sm:text-[9px] leading-tight ${occupant ? 'hidden sm:block' : ''}"></div>
-                                    
-                                    <!-- Occupant -->
-                                    ${occupant ? `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" 
-                                                       ondragstart="handleDragStart('${occupant.key}')" 
-                                                       ondragend="handleDragEnd()" 
-                                                       class="bg-white text-slate-800 rounded-lg sm:rounded-xl px-2 py-2 sm:px-3 sm:py-2 text-[10px] sm:text-[11px] font-black ${statusClass} leading-tight text-center flex items-center justify-center min-h-[50px] sm:min-h-[40px] active:scale-95 transition-transform">
-                                        ${occupant.label}
-                                    </div>` : '<div class="h-10 sm:h-12"></div>'}
+                        <div class="bg-slate-100 px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl border border-slate-200 font-black text-slate-700 text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                            <img src="img/golden-coin.png" alt="Gold coin" class="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span>${state.team.silverCoins}</span>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="p-3 sm:p-6 max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-pop nine-box-container">
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-base sm:text-lg font-black text-slate-800">Box Names</h2>
+                            <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Drag into grid</p>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)">
+                            ${labels.map(item => {
+                                const isPlaced = Boolean(placements[item.key]);
+                                return `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" 
+                                            ondragstart="handleDragStart('${item.key}')" 
+                                            ondragend="handleDragEnd()" 
+                                            class="${isPlaced ? 'opacity-40' : ''} nine-box-label-item bg-white border-2 border-slate-200 rounded-xl p-2.5 sm:p-3 text-center shadow-sm font-black text-[11px] sm:text-xs text-slate-700 min-h-[50px] flex items-center justify-center">
+                                    ${item.label}
                                 </div>`;
                             }).join('')}
                         </div>
-                    </div>
-                    
-                    <!-- X-Axis Labels -->
-                    <div class="grid grid-cols-[auto,1fr] gap-2 sm:gap-3 mt-2 sm:mt-3 items-center">
-                        <div></div>
-                        <div class="space-y-1.5 sm:space-y-2">
-                            <div class="flex justify-between text-[9px] sm:text-[10px] font-black uppercase text-slate-400 px-1">
-                                <span>Low</span><span>Moderate</span><span>High</span>
-                            </div>
-                            <div class="text-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">Performance</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
 
-            <!-- Submit Section -->
-            <section class="pt-2 sticky bottom-0 bg-slate-50 pb-4 sm:pb-0 sm:static">
-                <button data-submit="nine" 
-                        ${!state.isNineBoxSubmitted && (!canSubmit || timeUp) ? 'disabled' : ''} 
-                        onclick="${state.isNineBoxSubmitted ? "navigate('LANDING')" : "handleSubmitNineBox()"}" 
-                        class="w-full py-4 sm:py-5 rounded-2xl sm:rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-base sm:text-lg ${state.isNineBoxSubmitted ? 'bg-slate-900 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : canSubmit ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
-                    ${state.isNineBoxSubmitted ? 'Back to Dashboard' : timeUp ? 'Time Up' : 'Submit Grid'}
-                </button>
-                ${!state.isNineBoxSubmitted ? `<p class="text-center text-[10px] sm:text-xs font-bold text-slate-400 mt-2">${placedKeys.length} / ${labels.length} placed</p>` : ''}
-            </section>
-        </main>
-    </div>`;
-}
+                    <section class="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-3 sm:p-6 shadow-2xl overflow-x-auto">
+                        <div class="min-w-[320px] sm:min-w-0">
+                            <div class="grid grid-cols-[24px,1fr] sm:grid-cols-[36px,1fr] gap-2 sm:gap-3 items-stretch">
+                                <div class="flex flex-col items-center h-full">
+                                    <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 [writing-mode:vertical-rl] rotate-180 mb-1 sm:mb-2">Potential</span>
+                                    <div class="flex-1 flex flex-col justify-between text-[8px] sm:text-[10px] font-black uppercase text-slate-400">
+                                        <span>High</span>
+                                        <span>Mod</span>
+                                        <span>Low</span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1.5 sm:gap-3">
+                                    ${gridCells.map(cell => {
+                                        const occupantKey = Object.keys(placements).find(key => placements[key].performance === cell.performance && placements[key].potential === cell.potential);
+                                        const occupant = occupantKey ? labels.find(l => l.key === occupantKey) : null;
+                                        const status = occupantKey && feedback[occupantKey] ? feedback[occupantKey].status : null;
+                                        const statusClass = status === 'correct' ? 'ring-2 ring-green-500 bg-green-50' : status === 'wrong' ? 'ring-2 ring-red-500 bg-red-50' : '';
+                                        return `<div ondragover="handleDragOver(event)" 
+                                                     ondrop="handleDrop(event, ${cell.performance}, ${cell.potential})" 
+                                                     class="${cell.tone} ${cell.text} rounded-xl sm:rounded-2xl nine-box-grid-cell min-h-[80px] sm:h-28 p-2 sm:p-3 font-black text-[10px] sm:text-xs flex flex-col justify-between border-2 border-white/60">
+                                            <div class="opacity-90"></div>
+                                            ${occupant ? `<div draggable="${state.isNineBoxSubmitted || timeUp ? 'false' : 'true'}" 
+                                                              ondragstart="handleDragStart('${occupant.key}')" 
+                                                              ondragend="handleDragEnd()" 
+                                                              class="bg-white text-slate-800 rounded-lg sm:rounded-xl px-2 py-1.5 sm:px-3 sm:py-2 text-[9px] sm:text-[11px] font-black ${statusClass} leading-tight">
+                                                ${occupant.label}
+                                            </div>` : '<div class="h-8 sm:h-10"></div>'}
+                                        </div>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-[24px,1fr] sm:grid-cols-[36px,1fr] gap-2 sm:gap-3 mt-2 sm:mt-3 items-center">
+                                <div></div>
+                                <div class="space-y-1 sm:space-y-2">
+                                    <div class="flex justify-between text-[8px] sm:text-[10px] font-black uppercase text-slate-400 px-0.5 sm:px-1">
+                                        <span>Low</span><span>Mod</span><span>High</span>
+                                    </div>
+                                    <div class="text-center text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-400">Performance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pt-2">
+                        <button data-submit="nine" 
+                                ${!state.isNineBoxSubmitted && (!canSubmit || timeUp) ? 'disabled' : ''} 
+                                onclick="${state.isNineBoxSubmitted ? "navigate('LANDING')" : "handleSubmitNineBox()"}" 
+                                class="w-full py-4 sm:py-5 rounded-[2rem] font-black uppercase tracking-widest shadow-xl text-base sm:text-lg ${state.isNineBoxSubmitted ? 'bg-slate-900 text-white' : timeUp ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : canSubmit ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                            ${state.isNineBoxSubmitted ? 'Back to Dashboard' : timeUp ? 'Time Up' : 'Submit Grid'}
+                        </button>
+                        ${!state.isNineBoxSubmitted ? `<p class="text-center text-[10px] font-bold text-slate-400 mt-2">${placedKeys.length} / ${labels.length} placed</p>` : ''}
+                    </section>
+                </main>
+            </div>`;
+        }
+
         function renderEvaluation() {
             const p = state.selectedProfile;
             const timeUp = isRoundTimeUp('ksa');
@@ -2059,104 +1931,95 @@ function renderNineBox() {
 
         window.handleLogout = () => { localStorage.removeItem('team_data'); state.team = null; navigate('LOGIN'); };
 
+        window.handleScore = (cat, val, btn) => {
+            if (state.isSubmitted) return;
+            if (isRoundTimeUp('ksa')) return alert('Time is up for this round.');
 
-         window.handleScore = (cat, val, btn) => {
-  if (state.isSubmitted) return;
-  if (isRoundTimeUp('ksa')) return alert('Time is up for this round.');
+            state.evaluations[cat] = val;
 
-  state.evaluations[cat] = val;
+            const container = btn.closest('.grid');
 
-  // scope to this K / S / A grid only
-  const container = btn.closest('.grid');
+            container.querySelectorAll('button').forEach(b => {
+                b.classList.remove(
+                    'bg-sky-600',
+                    'text-white',
+                    'shadow-2xl',
+                    'scale-110',
+                    'ring-4',
+                    'ring-sky-100',
+                    'z-10'
+                );
 
-  container.querySelectorAll('button').forEach(b => {
-    // remove active styles
-    b.classList.remove(
-      'bg-sky-600',
-      'text-white',
-      'shadow-2xl',
-      'scale-110',
-      'ring-4',
-      'ring-sky-100',
-      'z-10'
-    );
+                b.classList.add(
+                    'bg-white',
+                    'text-slate-500',
+                    'border',
+                    'border-slate-200'
+                );
+            });
 
-    // restore inactive styles
-    b.classList.add(
-      'bg-white',
-      'text-slate-500',
-      'border',
-      'border-slate-200'
-    );
-  });
+            btn.classList.remove(
+                'bg-white',
+                'text-slate-500',
+                'border',
+                'border-slate-200'
+            );
 
-  // remove inactive styles from clicked button
-  btn.classList.remove(
-    'bg-white',
-    'text-slate-500',
-    'border',
-    'border-slate-200'
-  );
-
-  // apply active styles
-  btn.classList.add(
-    'bg-sky-600',
-    'text-white',
-    'shadow-2xl',
-    'scale-110',
-    'ring-4',
-    'ring-sky-100',
-    'z-10'
-  );
-};
+            btn.classList.add(
+                'bg-sky-600',
+                'text-white',
+                'shadow-2xl',
+                'scale-110',
+                'ring-4',
+                'ring-sky-100',
+                'z-10'
+            );
+        };
 
         window.handlePerformanceScore = (cat, val, btn) => {
-  if (state.isPerformanceSubmitted) return;
-  if (isRoundTimeUp('performance')) return alert('Time is up for this round.');
+            if (state.isPerformanceSubmitted) return;
+            if (isRoundTimeUp('performance')) return alert('Time is up for this round.');
 
-  state.performanceEvaluations[cat] = val;
+            state.performanceEvaluations[cat] = val;
 
-  const container = btn.closest('.grid');
+            const container = btn.closest('.grid');
 
-  container.querySelectorAll('button').forEach(b => {
-    b.classList.remove(
-      'bg-sky-600',
-      'text-white',
-      'shadow-2xl',
-      'scale-110',
-      'ring-4',
-      'ring-sky-100',
-      'z-10'
-    );
+            container.querySelectorAll('button').forEach(b => {
+                b.classList.remove(
+                    'bg-sky-600',
+                    'text-white',
+                    'shadow-2xl',
+                    'scale-110',
+                    'ring-4',
+                    'ring-sky-100',
+                    'z-10'
+                );
 
-    // 👈 restore inactive styles
-    b.classList.add(
-      'bg-white',
-      'text-slate-500',
-      'border',
-      'border-slate-200'
-    );
-  });
+                b.classList.add(
+                    'bg-white',
+                    'text-slate-500',
+                    'border',
+                    'border-slate-200'
+                );
+            });
 
-  // ❗ remove inactive styles from clicked button
-  btn.classList.remove(
-    'bg-white',
-    'text-slate-500',
-    'border',
-    'border-slate-200'
-  );
+            btn.classList.remove(
+                'bg-white',
+                'text-slate-500',
+                'border',
+                'border-slate-200'
+            );
 
-  // ✅ add active styles
-  btn.classList.add(
-    'bg-sky-600',
-    'text-white',
-    'shadow-2xl',
-    'scale-110',
-    'ring-4',
-    'ring-sky-100',
-    'z-10'
-  );
-};
+            btn.classList.add(
+                'bg-sky-600',
+                'text-white',
+                'shadow-2xl',
+                'scale-110',
+                'ring-4',
+                'ring-sky-100',
+                'z-10'
+            );
+        };
 
         window.toggleRubric = (type) => { state.profilePreviewId = null; state.rubricType = type || state.rubricType || 'KSA'; state.isRubricOpen = !state.isRubricOpen; render(); };
         window.closeCoinPopup = () => { state.showCoinPopup = false; render(); };
@@ -2251,7 +2114,6 @@ function renderNineBox() {
             if (k === null || s === null || a === null) return alert("Score all 3.");
             const p = state.selectedProfile;
             console.log(p)
-            // Prevent multiple evaluations for the same profile
             if (state.team.completedProfiles.some(cp => (typeof cp === 'string' ? cp === p.id : cp.id === p.id))) {
                 alert("You have already evaluated this profile. You cannot evaluate it again.");
                 state.isSubmitted = true;
@@ -2261,17 +2123,17 @@ function renderNineBox() {
             const correctCount = [k === p.answers.k, s === p.answers.s, a === p.answers.a].filter(Boolean).length;
             const silverEarned = correctCount;
             const goldEarned = correctCount === 3 ? 1 : 0;
-                if  (p.id != "fahd"){
+            if  (p.id != "fahd"){
                 console.log(p.id)
-            state.team.silverCoins += silverEarned;
-            state.team.goldCoins += goldEarned;
-                }
+                state.team.silverCoins += silverEarned;
+                state.team.goldCoins += goldEarned;
+            }
             const sub = { id: p.id, k, s, a };
             state.team.completedProfiles.push(sub);
             state.isSubmitted = true;
-             if  (p.id != "fahd"){
-            state.result = correctCount === 3 ? { type: 'gold', msg: "Perfect!" } : correctCount > 0 ? { type: 'silver', msg: `${correctCount}/3 Correct.` } : { type: 'none', msg: "No points." };
-             }
+            if  (p.id != "fahd"){
+                state.result = correctCount === 3 ? { type: 'gold', msg: "Perfect!" } : correctCount > 0 ? { type: 'silver', msg: `${correctCount}/3 Correct.` } : { type: 'none', msg: "No points." };
+            }
             state.coinPopupType = 'multi';
             state.coinPopupDetails = {
                 title: 'Activity 3 Results',
@@ -2299,9 +2161,9 @@ function renderNineBox() {
             const performanceCorrect = performance === p.performancePotential.performance;
             const potentialCorrect = potential === p.performancePotential.potential;
             const silverEarned = (performanceCorrect ? 1 : 0) + (potentialCorrect ? 2 : 0);
-              if  (p.id != "fahd"){
+            if  (p.id != "fahd"){
                 console.log(p.id)
-            state.team.silverCoins += silverEarned;
+                state.team.silverCoins += silverEarned;
             }
             const sub = { id: p.id, performance, potential };
             state.team.completedPerformanceProfiles.push(sub);
@@ -2395,7 +2257,6 @@ function renderNineBox() {
             if (field === 'roundIndex') state.adminTimerExt.roundIndex = Number(value);
             else state.adminTimerExt[field] = value;
 
-            // Default sensible round when switching activities
             if (field === 'target') {
                 if (value === 'ninebox') {
                     state.adminTimerExt.roundIndex = 0;
@@ -2421,7 +2282,6 @@ function renderNineBox() {
         }
 
         window.adminApplyTimerExtension = async () => {
-            // Ensure we have a fresh registry; otherwise ALL teams can be empty and nothing happens.
             if (!Array.isArray(state.registry) || state.registry.length === 0) {
                 await fetchRegistry(true);
             }
@@ -2451,11 +2311,9 @@ function renderNineBox() {
             fetchRegistry(false);
         };
 
-        // if (state.team) { navigate('LANDING'); fetchRegistry(); } else navigate('LOGIN');
         if (state.team) { 
-    navigate('LANDING'); 
-} else navigate('LOGIN');
+            navigate('LANDING'); 
+        } else navigate('LOGIN');
     </script>
-    <!-- <script type="module" src="/index.tsx"></script> -->
 </body>
 </html>
